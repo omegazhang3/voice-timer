@@ -33,11 +33,13 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, interval validation, and English time formatting.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, interval validation, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 
-The workflow in `.github/workflows/pages.yml` runs the tests and deploys only the five static app files on every push to `main`. Repository Settings → Pages → Source must be set to **GitHub Actions**.
+The workflow in `.github/workflows/pages.yml` runs tests and builds the static site with `npm run build` on every push to `main`. Repository Settings → Pages → Source must be set to **GitHub Actions**.
+
+The build gives JavaScript, CSS, and icons content-based filenames in `dist/`. The app also imports the matching version of the timer module, preventing an updated interface from using a cached older speech formatter. The source files can still be served directly for local development.
 
 ## Speech and timing
 

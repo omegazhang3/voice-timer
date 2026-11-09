@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/timer.test.js"
+    "build": "node build.mjs",
+    "test": "node --test"
   }
 }
