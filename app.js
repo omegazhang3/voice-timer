@@ -2,11 +2,14 @@ import { DEFAULT_INTERVAL, Timer, formatTime, spokenTime, validInterval } from '
 
 const $ = id => document.getElementById(id);
 const storageKey = 'voice-timer.interval';
+const shortSpeechKey = 'voice-timer.short-speech';
 let savedInterval = DEFAULT_INTERVAL;
+let shortSpeech = false;
 let storageAvailable = true;
 try {
   const stored = Number(localStorage.getItem(storageKey));
   if (validInterval(stored)) savedInterval = stored;
+  shortSpeech = localStorage.getItem(shortSpeechKey) === 'true';
 } catch { storageAvailable = false; }
 
 const timer = new Timer({ interval: savedInterval });
@@ -133,7 +136,7 @@ function render() {
 
 function tick() {
   const announcement = timer.pollAnnouncement();
-  if (announcement !== null && !voiceFailed) speak(spokenTime(announcement));
+  if (announcement !== null && !voiceFailed) speak(spokenTime(announcement, shortSpeech));
   render();
 }
 
@@ -175,7 +178,17 @@ $('stop-button').addEventListener('click', () => {
 
 $('test-voice').addEventListener('click', () => {
   voiceFailed = false;
-  speak('Voice Timer is ready. 30 seconds elapsed.', true);
+  const sample = spokenTime(timer.interval, shortSpeech);
+  speak(shortSpeech ? sample : 'Voice Timer is ready. ' + sample, true);
+});
+
+$('short-announcements').addEventListener('change', event => {
+  shortSpeech = event.target.checked;
+  cancelSpeech();
+  try { localStorage.setItem(shortSpeechKey, String(shortSpeech)); } catch {
+    storageAvailable = false;
+  }
+  render();
 });
 
 $('custom-interval').addEventListener('input', event => setIntervalValue(Number(event.target.value)));
@@ -202,5 +215,6 @@ if (supportsSpeech) {
   voiceMessage('This browser does not support voice playback. You can still use the stopwatch. Try a recent Chrome, Edge, or Safari browser for speech.', true);
 }
 $('custom-interval').value = String(savedInterval);
+$('short-announcements').checked = shortSpeech;
 updateIntervalUI();
 render();

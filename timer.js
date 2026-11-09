@@ -15,8 +15,9 @@ export function formatTime(seconds) {
   return hours > 0 ? `${pad(hours)}:${pad(minutes)}:${pad(secs)}` : `${pad(minutes)}:${pad(secs)}`;
 }
 
-export function spokenTime(seconds) {
+export function spokenTime(seconds, short = false) {
   const total = Math.max(0, Math.floor(seconds));
+  if (short) return total + ' second' + (total === 1 ? '' : 's') + '.';
   const parts = [];
   const units = [[Math.floor(total / 3600), 'hour'], [Math.floor((total % 3600) / 60), 'minute'], [total % 60, 'second']];
   for (const [value, unit] of units) {

@@ -93,4 +93,10 @@ test('formats minute/hour boundaries and natural English speech', () => {
   assert.equal(spokenTime(60), '1 minute elapsed.');
   assert.equal(spokenTime(90), '1 minute 30 seconds elapsed.');
   assert.equal(spokenTime(3661), '1 hour 1 minute 1 second elapsed.');
+  assert.equal(spokenTime(5, true), '5 seconds.');
+  assert.equal(spokenTime(10, true), '10 seconds.');
+  assert.equal(spokenTime(60, true), '60 seconds.');
+  assert.equal(spokenTime(65, true), '65 seconds.');
+  assert.equal(spokenTime(3661, true), '3661 seconds.');
+  assert.equal(spokenTime(1, true), '1 second.');
 });
