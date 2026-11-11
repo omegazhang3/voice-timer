@@ -1,7 +1,7 @@
 :root { color-scheme: light; --page: #f5f3ee; --ink: #273832; --muted: #737a72; --orange: #ec774d; --line: #e3e5dd; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink); -webkit-font-smoothing: antialiased; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; touch-action: manipulation; }
 button:disabled { cursor: default; }
@@ -29,6 +29,8 @@ h1 span { color: #82947c; }
 .status-dot { width: 5px; height: 5px; background: #a7b5a7; border-radius: 50%; }
 .status-pill[data-state=running] .status-dot { background: #cee8a4; box-shadow: 0 0 0 3px #cee8a417; }
 .status-pill[data-state=paused] .status-dot { background: #edb67c; }
+.status-pill[data-state=countdown] .status-dot { background: #ee855c; }
+.clock.counting-down { color: #eeab83; }
 .clock-area { text-align: center; flex: 1; padding: 45px 0 31px; }
 .clock-label { margin: 0 0 11px; color: #a6b8ab; font-size: 10px; font-weight: 600; letter-spacing: 2px; }
 .clock { font-size: clamp(65px, 8.5vw, 108px); line-height: 1.1; font-weight: 400; letter-spacing: -5px; font-variant-numeric: tabular-nums; font-family: 'Segoe UI', Arial, sans-serif; }
@@ -71,6 +73,12 @@ fieldset:disabled .presets, fieldset:disabled .input-wrap { opacity: .6; }
 .field-help, .field-error { font-size: 10px; line-height: 1.6; margin: 8px 0 0; }
 .field-help { color: #7a8273; }
 .field-error { color: #aa3d2c; }
+.start-settings { margin-top: 18px; }
+.start-delay-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.start-delay-row label { font-size: 12px; font-weight: 600; }
+.start-delay-row select { min-height: 42px; min-width: 108px; padding: 8px 10px; border: 1px solid #dde1d5; border-radius: 9px; background: #fff; color: #344537; font-size: 14px; }
+.start-delay-row select:focus-visible { outline: 2px solid #8eaa7c; outline-offset: 2px; }
+.start-settings:disabled { opacity: .6; }
 .speech-mode { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 52px; margin-top: 17px; cursor: pointer; }
 .speech-mode strong { display: block; font-size: 12px; font-weight: 600; }
 .speech-mode span > span { display: block; font-size: 10px; color: #7a8273; line-height: 1.6; margin-top: 5px; }

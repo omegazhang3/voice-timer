@@ -1,6 +1,8 @@
 export const DEFAULT_INTERVAL = 30;
 export const MIN_INTERVAL = 5;
 export const MAX_INTERVAL = 3600;
+export const DEFAULT_START_DELAY = 3;
+export const START_DELAYS = [0, 3, 5, 10];
 
 export function validInterval(value) {
   return Number.isInteger(value) && value >= MIN_INTERVAL && value <= MAX_INTERVAL;
@@ -37,7 +39,7 @@ export class Timer {
   }
 
   setInterval(value) {
-    if (this.state === 'running' || this.state === 'paused') return false;
+    if (['countdown', 'running', 'paused'].includes(this.state)) return false;
     if (!validInterval(value)) throw new RangeError('Choose a whole number from 5 to 3600.');
     this.interval = value;
     return true;
@@ -47,12 +49,20 @@ export class Timer {
     return this.accumulated + (this.state === 'running' ? Math.max(0, this.now() - this.startedAt) : 0);
   }
 
-  start() {
+  start(delay = 0) {
     if (this.state !== 'idle' && this.state !== 'stopped') return;
+    if (!START_DELAYS.includes(delay)) throw new RangeError('Choose a start delay of 0, 3, 5, or 10 seconds.');
     this.accumulated = 0;
     this.lastBucket = 0;
-    this.startedAt = this.now();
+    this.startedAt = this.now() + delay * 1000;
+    this.state = delay > 0 ? 'countdown' : 'running';
+  }
+
+  advanceCountdown() {
+    if (this.state !== 'countdown' || this.now() < this.startedAt) return false;
+    // Keep the scheduled start time so delayed ticks never shift the stopwatch.
     this.state = 'running';
+    return true;
   }
 
   pause() {
@@ -68,6 +78,11 @@ export class Timer {
   }
 
   stop() {
+    if (this.state === 'countdown') {
+      this.state = 'idle';
+      this.accumulated = 0;
+      return;
+    }
     if (this.state !== 'running' && this.state !== 'paused') return;
     this.accumulated = this.elapsedMs;
     this.state = 'stopped';
@@ -79,6 +94,7 @@ export class Timer {
     const remainder = elapsedMs % period;
     return {
       state: this.state,
+      countdownSeconds: this.state === 'countdown' ? Math.max(0, Math.ceil((this.startedAt - this.now()) / 1000)) : 0,
       seconds: Math.floor(elapsedMs / 1000),
       nextIn: Math.ceil((period - remainder) / 1000),
       progress: remainder / period,

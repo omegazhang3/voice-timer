@@ -44,7 +44,7 @@
             </div>
             <div class="controls">
               <button class="button button-primary" id="primary-button" type="button"><span class="control-icon" id="primary-icon" aria-hidden="true">▶</span><span id="primary-label">Start timer</span></button>
-              <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span>Stop</button>
+              <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span><span id="stop-label">Stop</span></button>
             </div>
           </section>
 
@@ -64,6 +64,18 @@
               <div class="input-wrap"><input id="custom-interval" type="number" min="5" max="3600" step="1" inputmode="numeric" value="30" required aria-describedby="interval-help interval-error"><span>seconds</span></div>
               <p class="field-help" id="interval-help">5–3,600 seconds. Saved on this device.</p>
               <p class="field-error" id="interval-error" role="alert" hidden></p>
+            </fieldset>
+            <fieldset class="start-settings" id="start-settings">
+              <div class="start-delay-row">
+                <label for="start-delay">Start delay</label>
+                <select id="start-delay" aria-describedby="start-delay-help">
+                  <option value="0">Off</option>
+                  <option value="3" selected>3 sec</option>
+                  <option value="5">5 sec</option>
+                  <option value="10">10 sec</option>
+                </select>
+              </div>
+              <p class="field-help" id="start-delay-help">A spoken countdown before timing begins.</p>
             </fieldset>
             <label class="speech-mode" for="short-announcements">
               <span><strong id="short-announcements-label">Short announcements</strong><span id="short-announcements-help">Seconds only: “5 seconds”, “10 seconds”.</span></span>

@@ -10,9 +10,10 @@ A simple English-speaking stopwatch. Choose an interval, press Start, and hear y
 - 5, 10, 30, and 60-second presets, or any whole-number interval from 5 to 3,600 seconds.
 - Optional **Short announcements** speaks only cumulative seconds: “5 seconds”, “10 seconds”, “65 seconds”, without “elapsed”. Switch it at any time; Test voice previews the selected mode and interval.
 - Start, pause, resume, and stop; final time stays visible until you start again or leave/reload the page.
+- **Start delay**: Off, 3, 5, or 10 seconds (default: 3). A large spoken countdown runs before each fresh start, then “Go!” marks the start of the stopwatch. Cancel it at any time; countdown time is excluded from elapsed time and announcement intervals. Resume continues immediately without a countdown.
 - Pauses do not count toward elapsed time. Interval settings are locked during a session.
-- Test voice before starting. Start and resume also speak a short confirmation.
-- Remembers your interval and announcement mode in browser storage; no account or backend.
+- Test voice before starting. Starting without a delay and resuming speak a short confirmation.
+- Remembers your interval, start delay, and announcement mode in browser storage; no account or backend.
 - Responsive layout for phones and desktops.
 
 ## Local use
@@ -33,7 +34,7 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, interval validation, English time formatting, and loading the correct speech formatter when an older module is cached.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 
@@ -47,4 +48,4 @@ Speech uses the browser’s Web Speech API with an English voice from the device
 
 Elapsed time is calculated from a monotonic timestamp, not by counting ticks. Delayed updates announce the current elapsed time once instead of replaying missed intervals. Pausing or stopping cancels speech.
 
-This first version focuses on foreground timing. Background/lock-screen announcements, keeping the display awake, PWA installation, and voice commands are outside its scope. Reloading or closing the page ends the session; only the interval and announcement-mode preferences are persisted.
+This first version focuses on foreground timing. Background/lock-screen announcements, keeping the display awake, PWA installation, and voice commands are outside its scope. Reloading or closing the page ends the session; only interval, start-delay, and announcement-mode preferences are persisted.

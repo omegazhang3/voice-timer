@@ -100,3 +100,67 @@ test('formats minute/hour boundaries and natural English speech', () => {
   assert.equal(spokenTime(3661, true), '3661 seconds.');
   assert.equal(spokenTime(1, true), '1 second.');
 });
+
+test('start delay counts down and is excluded from elapsed time and announcements', () => {
+  const { timer, advance } = clock(5);
+  timer.start(3);
+  assert.equal(timer.state, 'countdown');
+  assert.equal(timer.snapshot().countdownSeconds, 3);
+  assert.equal(timer.setInterval(10), false);
+  advance(1000);
+  timer.start(10); // A duplicate start must not restart the countdown.
+  assert.equal(timer.snapshot().countdownSeconds, 2);
+  assert.equal(timer.snapshot().seconds, 0);
+  assert.equal(timer.pollAnnouncement(), null);
+  advance(1999);
+  assert.equal(timer.advanceCountdown(), false);
+  assert.equal(timer.snapshot().countdownSeconds, 1);
+  advance(1);
+  assert.equal(timer.advanceCountdown(), true);
+  assert.equal(timer.state, 'running');
+  assert.equal(timer.snapshot().seconds, 0);
+  assert.equal(timer.snapshot().nextIn, 5);
+  advance(4999);
+  assert.equal(timer.pollAnnouncement(), null);
+  advance(1);
+  assert.equal(timer.pollAnnouncement(), 5);
+});
+
+test('cancelled countdown cannot start later and a new countdown starts fresh', () => {
+  const { timer, advance } = clock();
+  timer.start(3);
+  advance(2000);
+  timer.stop();
+  advance(10000);
+  assert.equal(timer.state, 'idle');
+  assert.equal(timer.advanceCountdown(), false);
+  assert.equal(timer.pollAnnouncement(), null);
+  assert.equal(timer.snapshot().seconds, 0);
+  timer.start(5);
+  assert.equal(timer.snapshot().countdownSeconds, 5);
+});
+
+test('late countdown ticks retain the scheduled start and resume has no delay', () => {
+  const { timer, advance } = clock(5);
+  timer.start(3);
+  advance(10500);
+  assert.equal(timer.advanceCountdown(), true);
+  assert.equal(timer.elapsedMs, 7500);
+  assert.equal(timer.pollAnnouncement(), 7);
+  assert.equal(timer.advanceCountdown(), false);
+  timer.pause();
+  advance(60000);
+  timer.resume();
+  assert.equal(timer.state, 'running');
+  assert.equal(timer.elapsedMs, 7500);
+  advance(2500);
+  assert.equal(timer.pollAnnouncement(), 10);
+});
+
+test('disabled countdown starts immediately; invalid start delays are rejected', () => {
+  const { timer } = clock();
+  for (const delay of [-1, 1.5, NaN, 60, '3']) assert.throws(() => timer.start(delay), RangeError);
+  timer.start(0);
+  assert.equal(timer.state, 'running');
+  assert.equal(timer.snapshot().countdownSeconds, 0);
+});

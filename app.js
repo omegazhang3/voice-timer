@@ -1,15 +1,20 @@
-import { DEFAULT_INTERVAL, Timer, formatTime, spokenTime, validInterval } from './timer.js';
+import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, formatTime, spokenTime, validInterval } from './timer.js';
 
 const $ = id => document.getElementById(id);
 const storageKey = 'voice-timer.interval';
 const shortSpeechKey = 'voice-timer.short-speech';
+const startDelayKey = 'voice-timer.start-delay';
 let savedInterval = DEFAULT_INTERVAL;
+let startDelay = DEFAULT_START_DELAY;
+let lastCountdownSpoken = null;
 let shortSpeech = false;
 let storageAvailable = true;
 try {
   const stored = Number(localStorage.getItem(storageKey));
   if (validInterval(stored)) savedInterval = stored;
   shortSpeech = localStorage.getItem(shortSpeechKey) === 'true';
+  const storedDelay = localStorage.getItem(startDelayKey);
+  if (storedDelay !== null && START_DELAYS.includes(Number(storedDelay))) startDelay = Number(storedDelay);
 } catch { storageAvailable = false; }
 
 const timer = new Timer({ interval: savedInterval });
@@ -102,41 +107,58 @@ function setIntervalValue(value) {
 }
 
 function render() {
-  const { state, seconds, nextIn, progress } = timer.snapshot();
-  const active = state === 'running' || state === 'paused';
-  const statuses = { idle: 'Ready', running: 'Running', paused: 'Paused', stopped: 'Finished' };
-  const primaryLabels = { idle: 'Start timer', running: 'Pause', paused: 'Resume', stopped: 'Start again' };
+  const { state, seconds, nextIn, progress, countdownSeconds } = timer.snapshot();
+  const countingDown = state === 'countdown';
+  const active = countingDown || state === 'running' || state === 'paused';
+  const statuses = { idle: 'Ready', countdown: 'Get ready', running: 'Running', paused: 'Paused', stopped: 'Finished' };
+  const primaryLabels = { idle: 'Start timer', countdown: 'Get ready…', running: 'Pause', paused: 'Resume', stopped: 'Start again' };
   const captions = {
     idle: 'A fresh start, whenever you’re ready.',
+    countdown: 'Get into position. Timing begins after the countdown.',
     running: `A voice update every ${timer.interval} seconds.`,
     paused: 'Take your time. Resume when you’re ready.',
     stopped: 'Nicely done. Your final time is shown here.',
   };
-  const nextLabels = { idle: 'First announcement in', running: 'Next announcement in', paused: 'After you resume', stopped: 'Session complete' };
-  $('clock').textContent = formatTime(seconds);
+  const nextLabels = { idle: 'First announcement in', countdown: 'Timing starts in', running: 'Next announcement in', paused: 'After you resume', stopped: 'Session complete' };
+  $('clock').textContent = countingDown ? String(countdownSeconds) : formatTime(seconds);
+  $('clock').classList.toggle('counting-down', countingDown);
+  $('clock').setAttribute('aria-label', countingDown ? 'Seconds until timing starts' : 'Elapsed time');
   $('clock').classList.toggle('has-hours', seconds >= 3600);
-  $('clock-label').textContent = state === 'stopped' ? 'FINAL TIME' : 'ELAPSED TIME';
+  $('clock-label').textContent = countingDown ? 'STARTING IN' : state === 'stopped' ? 'FINAL TIME' : 'ELAPSED TIME';
   // Only update the live status when it changes, not on every tick.
   if ($('status-text').textContent !== statuses[state]) $('status-text').textContent = statuses[state];
   $('timer-status').dataset.state = state;
   $('timer-caption').textContent = captions[state];
   $('primary-label').textContent = primaryLabels[state];
   $('primary-icon').textContent = state === 'running' ? 'Ⅱ' : '▶';
-  $('primary-button').disabled = !active && !intervalIsValid;
+  $('primary-button').disabled = countingDown || (!active && !intervalIsValid);
   $('stop-button').disabled = !active;
+  $('stop-label').textContent = countingDown ? 'Cancel' : 'Stop';
   $('interval-settings').disabled = active;
-  $('test-voice').disabled = !supportsSpeech || state === 'running';
+  $('start-settings').disabled = active;
+  $('test-voice').disabled = !supportsSpeech || countingDown || state === 'running';
   $('interval-help').textContent = active ? 'Stop the timer to change your interval.'
     : storageAvailable ? '5–3,600 seconds. Saved on this device.'
     : '5–3,600 seconds. Browser storage is unavailable; this setting lasts for this visit.';
   $('next-label').textContent = nextLabels[state];
-  $('next-time').textContent = state === 'stopped' ? '—' : formatTime(nextIn);
+  $('next-time').textContent = state === 'stopped' ? '—' : formatTime(countingDown ? countdownSeconds : nextIn);
   $('progress-fill').style.transform = `scaleX(${state === 'stopped' ? 1 : progress})`;
 }
 
 function tick() {
+  const justStarted = timer.advanceCountdown();
+  if (timer.state === 'countdown') {
+    const remaining = timer.snapshot().countdownSeconds;
+    if (remaining !== lastCountdownSpoken) {
+      lastCountdownSpoken = remaining;
+      if (!voiceFailed) speak(String(remaining));
+    }
+    render();
+    return;
+  }
   const announcement = timer.pollAnnouncement();
   if (announcement !== null && !voiceFailed) speak(spokenTime(announcement, shortSpeech));
+  else if (justStarted && !voiceFailed) speak('Go!');
   render();
 }
 
@@ -146,6 +168,7 @@ function startTicker() {
 }
 
 $('primary-button').addEventListener('click', () => {
+  if (timer.state === 'countdown') return;
   if (timer.state === 'running') {
     // Consume any boundary reached just before pausing, without queuing speech.
     timer.pollAnnouncement();
@@ -160,10 +183,11 @@ $('primary-button').addEventListener('click', () => {
   } else {
     setIntervalValue(Number($('custom-interval').value));
     if (!intervalIsValid) { $('custom-interval').focus(); return; }
-    timer.start();
+    timer.start(startDelay);
     voiceFailed = false;
     // Speaking in the click handler also activates audio on mobile browsers.
-    speak('Timer started.');
+    lastCountdownSpoken = startDelay > 0 ? startDelay : null;
+    speak(startDelay > 0 ? String(startDelay) : 'Timer started.');
     startTicker();
   }
   render();
@@ -192,17 +216,25 @@ $('short-announcements').addEventListener('change', event => {
 });
 
 $('custom-interval').addEventListener('input', event => setIntervalValue(Number(event.target.value)));
+$('start-delay').addEventListener('change', event => {
+  const value = Number(event.target.value);
+  if (!START_DELAYS.includes(value)) return;
+  startDelay = value;
+  try { localStorage.setItem(startDelayKey, String(value)); } catch { storageAvailable = false; }
+  render();
+});
 document.querySelectorAll('[data-interval]').forEach(button => button.addEventListener('click', () => {
   $('custom-interval').value = button.dataset.interval;
   setIntervalValue(Number(button.dataset.interval));
 }));
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && timer.state === 'running') tick();
+  if (!document.hidden && ['countdown', 'running'].includes(timer.state)) tick();
 });
 window.addEventListener('pagehide', () => {
   // Do not keep speaking after the page has been left.
-  timer.pause();
+  if (timer.state === 'countdown') timer.stop();
+  else timer.pause();
   clearInterval(ticker);
   cancelSpeech();
 });
@@ -216,5 +248,6 @@ if (supportsSpeech) {
 }
 $('custom-interval').value = String(savedInterval);
 $('short-announcements').checked = shortSpeech;
+$('start-delay').value = String(startDelay);
 updateIntervalUI();
 render();
