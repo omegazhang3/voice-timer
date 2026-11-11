@@ -1,4 +1,4 @@
-# Voice Timer
+# TimeCue
 
 A simple English-speaking stopwatch. Choose an interval, press Start, and hear your elapsed time without watching the clock.
 

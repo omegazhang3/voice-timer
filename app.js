@@ -203,7 +203,7 @@ $('stop-button').addEventListener('click', () => {
 $('test-voice').addEventListener('click', () => {
   voiceFailed = false;
   const sample = spokenTime(timer.interval, shortSpeech);
-  speak(shortSpeech ? sample : 'Voice Timer is ready. ' + sample, true);
+  speak(shortSpeech ? sample : 'TimeCue is ready. ' + sample, true);
 });
 
 $('short-announcements').addEventListener('change', event => {
