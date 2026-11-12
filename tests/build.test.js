@@ -24,4 +24,11 @@ test('published page bypasses a stale unversioned speech module', async t => {
   assert.equal(publishedTimer.spokenTime(5, true), '5 seconds.');
   assert.equal(publishedTimer.spokenTime(65, true), '65 seconds.');
   assert.equal(publishedTimer.spokenTime(5), '5 seconds elapsed.');
+  const sessionPath = [...app.matchAll(/from '([^']+)'/g)][1][1];
+  const { Session } = await import(new URL(sessionPath, entryURL).href);
+  const session = new Session();
+  session.create('Build check');
+  session.record(20);
+  session.save();
+  assert.equal(session.totalSeconds, 20);
 });

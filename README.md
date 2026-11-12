@@ -15,6 +15,17 @@ A simple English-speaking stopwatch. Choose an interval, press Start, and hear y
 - Test voice before starting. Starting without a delay and resuming speak a short confirmation.
 - Remembers your interval, start delay, and announcement mode in browser storage; no account or backend.
 - Responsive layout for phones and desktops.
+- Temporary named sessions with manually saved sets, deletion, and a final set-count and total-time summary.
+
+## Sessions and sets
+
+Create a session with any name (including Chinese), or press Start to create one automatically using the entered name or the current date and time. Stop each timing interval, then press **Save set** to add it to the session. A stopped time is not included in totals until saved, and the same stopped time cannot be saved twice.
+
+Use **Next set** to start again with the same announcement and countdown settings. If a stopped set is unsaved, starting another set or finishing the session asks whether to save it, discard it, or keep editing. **Delete** removes an incorrectly saved set while the session is active.
+
+Stop timing before selecting **Finish session**. The summary shows every saved set, the set count, and their combined duration. Durations use the complete seconds shown on the stopwatch; intervals under one second cannot be saved. Startup countdowns, pauses, rest between sets, and discarded sets do not count toward the total.
+
+Session data lives only in page memory: there is no history database, local storage, or server upload for session records. Refreshing or closing the page clears the session. The browser is asked to warn before leaving a session, but some mobile browsers do not display that warning. Starting a new session clears the previous summary after confirmation when it contains saved sets. Timer preferences continue to be saved separately.
 
 ## Local use
 

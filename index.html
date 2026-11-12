@@ -27,6 +27,25 @@
           <p>Set your rhythm. Press start. We’ll keep you on time.</p>
         </section>
 
+        <section class="session-banner" aria-labelledby="session-heading">
+          <div class="session-intro">
+            <p class="eyebrow" id="session-status">SESSION</p>
+            <h2 id="session-heading">Give your practice a name.</h2>
+            <p id="session-description">Create a session, or press Start for an automatically named one.</p>
+          </div>
+          <form id="session-form">
+            <label for="session-name">Session name</label>
+            <div class="session-create-row">
+              <input id="session-name" type="text" maxlength="80" placeholder="e.g. Jump rope / 悬挂" autocomplete="off">
+              <button type="submit" class="button button-session">Create session</button>
+            </div>
+          </form>
+          <div id="session-actions" hidden>
+            <button class="button button-session" id="finish-session" type="button">Finish session</button>
+            <button class="button button-session" id="new-session" type="button" hidden>New session</button>
+          </div>
+        </section>
+
         <div class="workspace">
           <section class="timer-card" aria-label="Stopwatch">
             <div class="timer-card-top">
@@ -46,6 +65,11 @@
               <button class="button button-primary" id="primary-button" type="button"><span class="control-icon" id="primary-icon" aria-hidden="true">▶</span><span id="primary-label">Start timer</span></button>
               <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span><span id="stop-label">Stop</span></button>
             </div>
+            <div class="set-review" id="set-review" hidden>
+              <div><strong id="pending-time">00:00</strong><span>Not saved yet</span></div>
+              <button class="button button-save" id="save-set" type="button">Save set</button>
+            </div>
+            <p class="set-feedback" id="set-feedback" role="status"></p>
           </section>
 
           <section class="settings-card" aria-labelledby="settings-title">
@@ -88,6 +112,31 @@
             <p class="voice-help" id="voice-message" role="status">Uses your device’s English voice. Check your volume before starting.</p>
           </section>
         </div>
+
+        <section class="session-records" id="session-records" aria-labelledby="records-heading" hidden>
+          <div class="records-heading-row">
+            <div><p class="eyebrow" id="records-eyebrow">YOUR PROGRESS</p><h2 id="records-heading">Saved sets</h2></div>
+            <div class="session-totals">
+              <div><strong id="set-count">0</strong><span>Sets</span></div>
+              <div><strong id="session-total">00:00</strong><span>Total time</span></div>
+            </div>
+          </div>
+          <p id="sets-empty">No sets saved yet. Stop the timer, then choose Save set.</p>
+          <div class="sets-table-wrap" id="sets-table-wrap" hidden>
+            <table class="sets-table"><thead><tr><th scope="col">Set</th><th scope="col">Duration</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="sets-list"></tbody></table>
+          </div>
+          <p class="session-note">Total time includes saved sets only, excluding countdowns, pauses and rest. Refreshing or closing this page clears your session.</p>
+        </section>
+
+        <dialog id="pending-dialog" aria-labelledby="pending-dialog-title" aria-describedby="pending-dialog-description">
+          <h2 id="pending-dialog-title">Save this set?</h2>
+          <p id="pending-dialog-description"></p>
+          <div class="dialog-actions">
+            <button class="button button-session" id="pending-save" type="button">Save &amp; continue</button>
+            <button class="button button-secondary" id="pending-discard" type="button">Discard &amp; continue</button>
+            <button class="button button-secondary" id="pending-cancel" type="button">Keep editing</button>
+          </div>
+        </dialog>
 
         <div class="how-it-works" aria-label="How it works">
           <div><span class="step-number">01</span><p><strong>Pick an interval</strong><span>Make a little space for focus.</span></p></div>
