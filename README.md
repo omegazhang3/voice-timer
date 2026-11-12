@@ -1,21 +1,32 @@
 # TimeCue
 
-A simple English-speaking stopwatch. Choose an interval, press Start, and hear your elapsed time without watching the clock.
+[English](README.md) | [简体中文](README.zh-CN.md)
+
+A talking workout timer that helps you focus on your movement without repeatedly checking the screen. Useful for jump rope, dead hangs, planks, stretching, and other timed activities. The current version has an English interface and English voice announcements.
 
 **Live app:** https://omegazhang3.github.io/voice-timer/
 
-## Features
+## Feature highlights
+
+- **Hear your progress:** Announce elapsed time at a preset or custom interval. Short announcements say just “5 seconds”, “10 seconds”, and so on.
+- **Get ready before timing starts:** Choose a spoken 3, 5, or 10-second countdown, or start immediately. The default is 3 seconds.
+- **Control your workout:** Start, pause, resume, and stop. Preparation countdowns and pauses are excluded from elapsed time.
+- **Organize training into sessions and sets:** Name a session after your activity and manually save each stopped interval as a set.
+- **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
+- **Review your session:** See the number of saved sets, each set’s duration, and the total training time.
+- **Open and use:** Works in a phone or desktop browser without installation or registration. Session records stay in page memory and are cleared on reload; timer preferences are remembered separately.
+
+## Timing and voice options
 
 - Count up with English voice announcements (for example, “1 minute 30 seconds elapsed”).
 - 5, 10, 30, and 60-second presets, or any whole-number interval from 5 to 3,600 seconds.
 - Optional **Short announcements** speaks only cumulative seconds: “5 seconds”, “10 seconds”, “65 seconds”, without “elapsed”. Switch it at any time; Test voice previews the selected mode and interval.
 - Start, pause, resume, and stop; final time stays visible until you start again or leave/reload the page.
 - **Start delay**: Off, 3, 5, or 10 seconds (default: 3). A large spoken countdown runs before each fresh start, then “Go!” marks the start of the stopwatch. Cancel it at any time; countdown time is excluded from elapsed time and announcement intervals. Resume continues immediately without a countdown.
-- Pauses do not count toward elapsed time. Interval settings are locked during a session.
+- Pauses do not count toward elapsed time. Interval settings are locked while the timer is active.
 - Test voice before starting. Starting without a delay and resuming speak a short confirmation.
 - Remembers your interval, start delay, and announcement mode in browser storage; no account or backend.
 - Responsive layout for phones and desktops.
-- Temporary named sessions with manually saved sets, deletion, and a final set-count and total-time summary.
 
 ## Sessions and sets
 
