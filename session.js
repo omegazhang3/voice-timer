@@ -36,7 +36,7 @@ export class Session {
 
   updatePending(seconds) {
     if (this.state !== 'active' || !this.pending || !validSetDuration(seconds)) return false;
-    if (seconds > this.pending.measuredSeconds || (this.pending.measuredSeconds - seconds) % 5 !== 0) return false;
+    if (seconds > this.pending.measuredSeconds) return false;
     if (this.pending.seconds !== seconds) {
       this.pending.seconds = seconds;
       this.revision++;

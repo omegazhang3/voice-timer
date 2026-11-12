@@ -59,7 +59,7 @@ test('invalid duration edits leave the pending set unchanged', () => {
   assert.equal(session.updatePending(15), false);
   session.create('Hang');
   session.record(20);
-  for (const value of [0, -1, 0.5, NaN, Infinity, '15', 25, 19, Number.MAX_SAFE_INTEGER + 1]) {
+  for (const value of [0, -1, 0.5, NaN, Infinity, '15', 25, Number.MAX_SAFE_INTEGER + 1]) {
     assert.equal(session.updatePending(value), false);
     assert.equal(session.pending.seconds, 20);
   }
@@ -68,16 +68,16 @@ test('invalid duration edits leave the pending set unchanged', () => {
   assert.equal(session.updatePending(15), false);
 });
 
-test('adjustments use five-second steps anchored to measured time and stay positive', () => {
+test('adjustments accept whole seconds within the measured duration and stay positive', () => {
   const session = new Session();
   session.create('Hang');
   session.record(23);
-  for (const seconds of [18, 13, 8, 3]) assert.equal(session.updatePending(seconds), true);
+  for (const seconds of [20, 15, 10, 5]) assert.equal(session.updatePending(seconds), true);
   assert.equal(session.pending.measuredSeconds, 23);
   assert.equal(session.updatePending(-2), false);
-  assert.equal(session.updatePending(5), false);
-  for (const seconds of [8, 13, 18, 23]) assert.equal(session.updatePending(seconds), true);
-  assert.equal(session.updatePending(28), false);
+  assert.equal(session.updatePending(0), false);
+  for (let seconds = 6; seconds <= 23; seconds++) assert.equal(session.updatePending(seconds), true);
+  assert.equal(session.updatePending(24), false);
   session.discard();
   session.record(4);
   assert.equal(session.updatePending(-1), false);

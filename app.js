@@ -328,9 +328,12 @@ $('session-form').addEventListener('submit', event => {
   render();
 });
 $('save-set').addEventListener('click', savePendingSet);
-for (const [id, delta] of [['decrease-set-duration', -5], ['increase-set-duration', 5]]) {
+for (const [id, adjust] of [
+  ['decrease-set-duration', seconds => Math.floor((seconds - 1) / 5) * 5],
+  ['increase-set-duration', seconds => seconds + 1],
+]) {
   $(id).addEventListener('click', () => {
-    if (session.pending && session.updatePending(session.pending.seconds + delta)) render();
+    if (session.pending && session.updatePending(adjust(session.pending.seconds))) render();
   });
 }
 $('finish-session').addEventListener('click', () => {

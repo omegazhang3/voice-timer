@@ -69,11 +69,11 @@
               <div class="set-duration-editor">
                 <label for="set-duration">Set duration</label>
                 <div class="set-duration-stepper" role="group" aria-label="Adjust set duration" aria-describedby="set-duration-help">
-                  <button id="decrease-set-duration" type="button" aria-label="Decrease set duration by 5 seconds">−5</button>
+                  <button id="decrease-set-duration" type="button" aria-label="Reduce set duration to the previous multiple of 5 seconds">−</button>
                   <div><output id="set-duration" aria-live="polite">0</output><span>sec</span></div>
-                  <button id="increase-set-duration" type="button" aria-label="Increase set duration by 5 seconds">+5</button>
+                  <button id="increase-set-duration" type="button" aria-label="Increase set duration by 1 second">+1</button>
                 </div>
-                <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. Adjust by 5 sec, up to the measured time.</p>
+                <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. − rounds down to the previous multiple of 5 sec. +1 adds one second, up to the measured time.</p>
               </div>
               <button class="button button-save" id="save-set" type="button">Save set</button>
             </div>
