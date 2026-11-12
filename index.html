@@ -68,9 +68,12 @@
             <div class="set-review" id="set-review" hidden>
               <div class="set-duration-editor">
                 <label for="set-duration">Set duration</label>
-                <div class="set-duration-input"><input id="set-duration" type="number" min="1" step="1" inputmode="numeric" required aria-describedby="set-duration-help set-duration-error"><span>sec</span></div>
-                <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. Edit before saving.</p>
-                <p id="set-duration-error" role="alert" hidden>Enter a whole number of seconds greater than 0.</p>
+                <div class="set-duration-stepper" role="group" aria-label="Adjust set duration" aria-describedby="set-duration-help">
+                  <button id="decrease-set-duration" type="button" aria-label="Decrease set duration by 5 seconds">−5</button>
+                  <div><output id="set-duration" aria-live="polite">0</output><span>sec</span></div>
+                  <button id="increase-set-duration" type="button" aria-label="Increase set duration by 5 seconds">+5</button>
+                </div>
+                <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. Adjust by 5 sec, up to the measured time.</p>
               </div>
               <button class="button button-save" id="save-set" type="button">Save set</button>
             </div>

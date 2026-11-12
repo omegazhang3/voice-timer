@@ -47,10 +47,11 @@ test('editing a pending set changes the saved total without changing measured ti
   assert.equal(session.save(), false);
   assert.equal(session.updatePending(12), false);
   session.record(30);
-  session.updatePending(40);
+  assert.equal(session.updatePending(40), false);
+  session.updatePending(25);
   session.save();
   session.finish();
-  assert.equal(session.totalSeconds, 55);
+  assert.equal(session.totalSeconds, 40);
 });
 
 test('invalid duration edits leave the pending set unchanged', () => {
@@ -58,13 +59,31 @@ test('invalid duration edits leave the pending set unchanged', () => {
   assert.equal(session.updatePending(15), false);
   session.create('Hang');
   session.record(20);
-  for (const value of [0, -1, 0.5, NaN, Infinity, '15', Number.MAX_SAFE_INTEGER + 1]) {
+  for (const value of [0, -1, 0.5, NaN, Infinity, '15', 25, 19, Number.MAX_SAFE_INTEGER + 1]) {
     assert.equal(session.updatePending(value), false);
     assert.equal(session.pending.seconds, 20);
   }
   session.discard();
   session.finish();
   assert.equal(session.updatePending(15), false);
+});
+
+test('adjustments use five-second steps anchored to measured time and stay positive', () => {
+  const session = new Session();
+  session.create('Hang');
+  session.record(23);
+  for (const seconds of [18, 13, 8, 3]) assert.equal(session.updatePending(seconds), true);
+  assert.equal(session.pending.measuredSeconds, 23);
+  assert.equal(session.updatePending(-2), false);
+  assert.equal(session.updatePending(5), false);
+  for (const seconds of [8, 13, 18, 23]) assert.equal(session.updatePending(seconds), true);
+  assert.equal(session.updatePending(28), false);
+  session.discard();
+  session.record(4);
+  assert.equal(session.updatePending(-1), false);
+  assert.equal(session.updatePending(9), false);
+  session.save();
+  assert.equal(session.totalSeconds, 4);
 });
 
 test('totals include saved sets only and update after deletion', () => {

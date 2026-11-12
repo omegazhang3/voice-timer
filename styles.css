@@ -122,13 +122,13 @@ footer a:hover { text-decoration: underline; }
 .set-review { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid #ffffff20; padding-top: 18px; margin-top: 18px; }
 .set-duration-editor { min-width: 0; flex: 1; }
 .set-duration-editor label { display: block; font-size: 12px; margin-bottom: 8px; }
-.set-duration-input { display: flex; align-items: center; width: 100%; max-width: 200px; border: 1px solid #bdc9b5; border-radius: 9px; background: #f8faf2; color: #273d35; }
-.set-duration-input input { min-width: 0; width: 100%; min-height: 44px; background: transparent; color: inherit; border: 0; border-radius: 9px; padding: 9px 11px; font-size: 16px; outline: none; }
-.set-duration-input > span { font-size: 12px; padding-right: 12px; }
-.set-duration-input:focus-within { outline: 2px solid #cce0a4; outline-offset: 3px; }
-.set-duration-input:has([aria-invalid=true]) { border-color: #f4a583; }
+.set-duration-stepper { display: flex; align-items: center; gap: 8px; max-width: 230px; }
+.set-duration-stepper button { width: 44px; min-height: 44px; flex-shrink: 0; padding: 0; border: 1px solid #bdc9b5; border-radius: 9px; background: #f8faf2; color: #273d35; font-size: 16px; font-weight: 600; }
+.set-duration-stepper button:disabled { opacity: .35; }
+.set-duration-stepper > div { flex: 1; min-width: 0; text-align: center; }
+.set-duration-stepper output { display: block; font-size: 22px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.set-duration-stepper span { font-size: 10px; color: #b4c4b8; }
 .set-duration-editor p { font-size: 11px; color: #b4c4b8; margin: 8px 0 0; line-height: 1.6; }
-.set-duration-editor #set-duration-error { color: #ffcab3; }
 .button-save { background: #cce0a4; color: #273d35; padding: 0 22px; min-height: 45px; }
 .button-save:hover { background: #dcebbd; }
 .button-save:disabled { opacity: .45; }
@@ -156,6 +156,8 @@ dialog > p { font-size: 14px; color: #687461; line-height: 1.7; }
 .dialog-actions { display: grid; gap: 10px; margin-top: 22px; }
 @media (min-width: 1200px) { .page { padding-top: 8px; } .intro { padding-top: 52px; } }
 @media (max-width: 760px) {
+  .set-review { flex-wrap: wrap; }
+  .set-duration-editor { flex-basis: 180px; }
   .session-banner { flex-direction: column; align-items: stretch; gap: 15px; padding: 20px; }
   #session-form { width: 100%; }
   .session-records { padding: 22px; }
