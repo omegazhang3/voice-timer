@@ -120,10 +120,18 @@ footer a:hover { text-decoration: underline; }
 .button-session:disabled { opacity: .5; }
 .button-secondary { background: #f2f3ec; color: #52614f; border: 1px solid var(--line); padding: 0 14px; min-height: 43px; }
 .set-review { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid #ffffff20; padding-top: 18px; margin-top: 18px; }
-.set-review strong { display: block; font-size: 23px; font-variant-numeric: tabular-nums; }
-.set-review span { display: block; font-size: 11px; color: #b4c4b8; margin-top: 4px; }
+.set-duration-editor { min-width: 0; flex: 1; }
+.set-duration-editor label { display: block; font-size: 12px; margin-bottom: 8px; }
+.set-duration-input { display: flex; align-items: center; width: 100%; max-width: 200px; border: 1px solid #bdc9b5; border-radius: 9px; background: #f8faf2; color: #273d35; }
+.set-duration-input input { min-width: 0; width: 100%; min-height: 44px; background: transparent; color: inherit; border: 0; border-radius: 9px; padding: 9px 11px; font-size: 16px; outline: none; }
+.set-duration-input > span { font-size: 12px; padding-right: 12px; }
+.set-duration-input:focus-within { outline: 2px solid #cce0a4; outline-offset: 3px; }
+.set-duration-input:has([aria-invalid=true]) { border-color: #f4a583; }
+.set-duration-editor p { font-size: 11px; color: #b4c4b8; margin: 8px 0 0; line-height: 1.6; }
+.set-duration-editor #set-duration-error { color: #ffcab3; }
 .button-save { background: #cce0a4; color: #273d35; padding: 0 22px; min-height: 45px; }
 .button-save:hover { background: #dcebbd; }
+.button-save:disabled { opacity: .45; }
 .set-feedback { margin: 12px 0 0; color: #d9e7ca; font-size: 12px; line-height: 1.5; }
 .set-feedback:empty { display: none; }
 .session-records { margin-top: 22px; padding: 25px 28px; background: #fdfdfa; border: 1px solid var(--line); border-radius: 22px; }

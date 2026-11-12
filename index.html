@@ -66,7 +66,12 @@
               <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span><span id="stop-label">Stop</span></button>
             </div>
             <div class="set-review" id="set-review" hidden>
-              <div><strong id="pending-time">00:00</strong><span>Not saved yet</span></div>
+              <div class="set-duration-editor">
+                <label for="set-duration">Set duration</label>
+                <div class="set-duration-input"><input id="set-duration" type="number" min="1" step="1" inputmode="numeric" required aria-describedby="set-duration-help set-duration-error"><span>sec</span></div>
+                <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. Edit before saving.</p>
+                <p id="set-duration-error" role="alert" hidden>Enter a whole number of seconds greater than 0.</p>
+              </div>
               <button class="button button-save" id="save-set" type="button">Save set</button>
             </div>
             <p class="set-feedback" id="set-feedback" role="status"></p>

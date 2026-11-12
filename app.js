@@ -1,5 +1,5 @@
 import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, formatTime, spokenTime, validInterval } from './timer.js';
-import { Session } from './session.js';
+import { Session, validSetDuration } from './session.js';
 
 const $ = id => document.getElementById(id);
 const storageKey = 'voice-timer.interval';
@@ -21,6 +21,7 @@ try {
 let timer = new Timer({ interval: savedInterval });
 let session = new Session();
 let sessionRenderKey = '';
+let pendingEditorId = null;
 let pendingAction = null;
 let unloadWarningActive = false;
 const synth = window.speechSynthesis;
@@ -213,7 +214,18 @@ function renderSession() {
   });
   $('sets-list').replaceChildren(...rows);
   $('set-review').hidden = !session.pending || timer.state !== 'stopped';
-  if (session.pending) $('pending-time').textContent = formatTime(session.pending.seconds);
+  if (session.pending) {
+    if (pendingEditorId !== session.pending.id) {
+      pendingEditorId = session.pending.id;
+      $('set-duration').value = String(session.pending.seconds);
+      $('set-duration-error').hidden = true;
+      $('set-duration').removeAttribute('aria-invalid');
+    }
+    $('pending-time').textContent = formatTime(timer.snapshot().seconds);
+    $('save-set').disabled = !validPendingDuration();
+  } else {
+    pendingEditorId = null;
+  }
   if (exists !== unloadWarningActive) {
     window[exists ? 'addEventListener' : 'removeEventListener']('beforeunload', warnBeforeUnload);
     unloadWarningActive = exists;
@@ -224,7 +236,23 @@ function ensureSession() {
   if (session.state === 'empty') session.create($('session-name').value);
 }
 
+function validPendingDuration() {
+  return validSetDuration(Number($('set-duration').value)) && $('set-duration').validity.valid;
+}
+
+function syncPendingDuration() {
+  if (!session.pending) return false;
+  const valid = validPendingDuration();
+  $('set-duration-error').hidden = valid;
+  $('set-duration').setAttribute('aria-invalid', String(!valid));
+  $('save-set').disabled = !valid;
+  $('pending-save').disabled = !valid;
+  if (valid) session.updatePending(Number($('set-duration').value));
+  return valid;
+}
+
 function savePendingSet() {
+  if (!syncPendingDuration()) return false;
   if (!session.save()) return false;
   $('set-feedback').textContent = 'Set ' + session.sets.length + ' saved · ' + formatTime(session.sets.at(-1).seconds);
   render();
@@ -233,9 +261,11 @@ function savePendingSet() {
 
 function resolvePending(action, purpose) {
   if (!session.pending) { action(); return; }
+  const valid = syncPendingDuration();
   pendingAction = action;
-  $('pending-dialog-description').textContent = 'Your ' + formatTime(session.pending.seconds)
-    + ' set has not been saved. Save or discard it before ' + purpose + '.';
+  $('pending-dialog-description').textContent = valid
+    ? 'Your ' + formatTime(session.pending.seconds) + ' set has not been saved. Save or discard it before ' + purpose + '.'
+    : 'The set duration is invalid. Choose Keep editing to correct it, or discard the set before ' + purpose + '.';
   $('pending-dialog').showModal();
 }
 
@@ -323,6 +353,16 @@ $('session-form').addEventListener('submit', event => {
   render();
 });
 $('save-set').addEventListener('click', savePendingSet);
+$('set-duration').addEventListener('input', () => {
+  syncPendingDuration();
+  render();
+});
+$('set-duration').addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    savePendingSet();
+  }
+});
 $('finish-session').addEventListener('click', () => {
   if (['countdown', 'running', 'paused'].includes(timer.state)) return;
   resolvePending(finishSession, 'finishing this session');
@@ -346,6 +386,7 @@ $('pending-discard').addEventListener('click', () => {
 $('pending-cancel').addEventListener('click', () => {
   pendingAction = null;
   $('pending-dialog').close();
+  $('set-duration').focus();
 });
 $('pending-dialog').addEventListener('cancel', () => { pendingAction = null; });
 $('new-session').addEventListener('click', () => {

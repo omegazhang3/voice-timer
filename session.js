@@ -1,4 +1,8 @@
 // Session records are intentionally held in memory only.
+export function validSetDuration(seconds) {
+  return Number.isSafeInteger(seconds) && seconds > 0;
+}
+
 export class Session {
   constructor({ now = () => new Date() } = {}) {
     this.now = now;
@@ -24,9 +28,18 @@ export class Session {
   }
 
   record(seconds) {
-    if (this.state !== 'active' || this.pending || !Number.isSafeInteger(seconds) || seconds < 1) return false;
+    if (this.state !== 'active' || this.pending || !validSetDuration(seconds)) return false;
     this.pending = { id: this.nextId++, seconds };
     this.revision++;
+    return true;
+  }
+
+  updatePending(seconds) {
+    if (this.state !== 'active' || !this.pending || !validSetDuration(seconds)) return false;
+    if (this.pending.seconds !== seconds) {
+      this.pending.seconds = seconds;
+      this.revision++;
+    }
     return true;
   }
 

@@ -29,6 +29,44 @@ test('stopped sets require manual saving and cannot be saved twice', () => {
   assert.equal(session.totalSeconds, 20);
 });
 
+test('editing a pending set changes the saved total without changing measured time', () => {
+  let now = 0;
+  const timer = new Timer({ now: () => now });
+  const session = new Session();
+  session.create('Hang');
+  timer.start();
+  now = 20000;
+  timer.stop();
+  session.record(timer.snapshot().seconds);
+  assert.equal(session.updatePending(15), true);
+  assert.equal(timer.snapshot().seconds, 20);
+  assert.equal(session.totalSeconds, 0);
+  session.save();
+  assert.equal(session.sets[0].seconds, 15);
+  assert.equal(session.totalSeconds, 15);
+  assert.equal(session.save(), false);
+  assert.equal(session.updatePending(12), false);
+  session.record(30);
+  session.updatePending(40);
+  session.save();
+  session.finish();
+  assert.equal(session.totalSeconds, 55);
+});
+
+test('invalid duration edits leave the pending set unchanged', () => {
+  const session = new Session();
+  assert.equal(session.updatePending(15), false);
+  session.create('Hang');
+  session.record(20);
+  for (const value of [0, -1, 0.5, NaN, Infinity, '15', Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(session.updatePending(value), false);
+    assert.equal(session.pending.seconds, 20);
+  }
+  session.discard();
+  session.finish();
+  assert.equal(session.updatePending(15), false);
+});
+
 test('totals include saved sets only and update after deletion', () => {
   const session = new Session();
   session.create('跳绳');
