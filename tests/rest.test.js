@@ -68,3 +68,17 @@ test('rest does not change set durations, saved totals, or the next announcement
   session.save();
   assert.equal(session.totalSeconds, 20);
 });
+
+test('saved rest ends at the scheduled start even when the countdown callback is late', () => {
+  let now = 0;
+  const rest = new RestTimer({ now: () => now });
+  const timer = new Timer({ now: () => now });
+  rest.start();
+  now = 7000;
+  timer.start(3);
+  now = 15000;
+  assert.equal(timer.advanceCountdown(), true);
+  assert.equal(rest.seconds, 15);
+  assert.equal(rest.secondsAt(timer.startedAt), 10);
+  assert.equal(timer.snapshot().seconds, 5);
+});

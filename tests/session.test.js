@@ -86,6 +86,53 @@ test('adjustments accept whole seconds within the measured duration and stay pos
   assert.equal(session.totalSeconds, 4);
 });
 
+test('completed rest belongs to the preceding saved set and never changes workout totals', () => {
+  const session = new Session();
+  session.create('Hang');
+  session.record(20);
+  const firstId = session.pending.id;
+  assert.equal(session.recordRest(firstId, 10), false); // Manual saving is still required.
+  session.updatePending(15);
+  session.save();
+  assert.equal(session.sets[0].restSeconds, null);
+  for (const seconds of [-1, 0.5, NaN, Infinity, '10', Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(session.recordRest(firstId, seconds), false);
+  }
+  assert.equal(session.recordRest(firstId, 10), true);
+  assert.equal(session.recordRest(firstId, 12), false);
+  session.record(5);
+  session.save();
+  assert.equal(session.sets[0].restSeconds, 10);
+  assert.equal(session.sets[1].restSeconds, null);
+  assert.equal(session.totalSeconds, 20);
+  session.finish();
+  assert.equal(session.recordRest(session.sets[1].id, 2), false);
+  assert.equal(session.sets[1].restSeconds, null); // No next set means no completed interval.
+  session.create('New');
+  assert.equal(session.sets.length, 0);
+});
+
+test('zero-second rest is valid and deleted or discarded sets cannot transfer their rest', () => {
+  const session = new Session();
+  session.create('Hang');
+  session.record(10);
+  session.save();
+  const firstId = session.sets[0].id;
+  assert.equal(session.recordRest(firstId, 0), true);
+  assert.equal(session.sets[0].restSeconds, 0);
+  session.record(10);
+  const discardedId = session.pending.id;
+  session.discard();
+  assert.equal(session.recordRest(discardedId, 12), false);
+  session.record(10);
+  const deletedId = session.pending.id;
+  session.save();
+  session.remove(deletedId);
+  assert.equal(session.recordRest(deletedId, 20), false);
+  assert.equal(session.sets[0].restSeconds, 0);
+  assert.equal(session.totalSeconds, 10);
+});
+
 test('totals include saved sets only and update after deletion', () => {
   const session = new Session();
   session.create('跳绳');

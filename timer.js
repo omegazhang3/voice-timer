@@ -40,7 +40,11 @@ export class RestTimer {
   }
 
   get seconds() {
-    return this.running ? Math.floor(Math.max(0, this.now() - this.startedAt) / 1000) : 0;
+    return this.secondsAt(this.now());
+  }
+
+  secondsAt(time) {
+    return this.running ? Math.floor(Math.max(0, time - this.startedAt) / 1000) : 0;
   }
 
   start() {

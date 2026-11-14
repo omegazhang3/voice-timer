@@ -149,7 +149,7 @@ footer a:hover { text-decoration: underline; }
 .sets-table { border-collapse: collapse; width: 100%; text-align: left; font-size: 13px; }
 .sets-table th { font-size: 11px; color: #737a72; background: #fdfdfa; position: sticky; top: 0; }
 .sets-table th, .sets-table td { padding: 11px 8px; border-bottom: 1px solid var(--line); }
-.sets-table td:nth-child(2) { font-variant-numeric: tabular-nums; }
+.sets-table td:nth-child(2), .sets-table td:nth-child(3) { font-variant-numeric: tabular-nums; }
 .sets-table td:last-child { text-align: right; }
 .delete-set { border: 0; border-radius: 7px; padding: 10px 13px; background: #f6ede8; color: #94523c; font-size: 11px; }
 .session-note { color: #7a8273; font-size: 11px; line-height: 1.7; margin: 20px 0 0; }

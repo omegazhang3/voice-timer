@@ -20,6 +20,7 @@ try {
 
 let timer = new Timer({ interval: savedInterval });
 const restTimer = new RestTimer();
+let restSetId = null;
 let session = new Session();
 let sessionRenderKey = '';
 let pendingAction = null;
@@ -196,6 +197,8 @@ function renderSession() {
     number.textContent = 'Set ' + (index + 1);
     const duration = document.createElement('td');
     duration.textContent = formatTime(set.seconds);
+    const rest = document.createElement('td');
+    rest.textContent = set.restSeconds === null ? '—' : formatTime(set.restSeconds);
     const actions = document.createElement('td');
     if (!finished) {
       const remove = document.createElement('button');
@@ -211,7 +214,7 @@ function renderSession() {
       });
       actions.append(remove);
     }
-    row.append(number, duration, actions);
+    row.append(number, duration, rest, actions);
     return row;
   });
   $('sets-list').replaceChildren(...rows);
@@ -247,12 +250,21 @@ function resolvePending(action, purpose) {
   $('pending-dialog').showModal();
 }
 
+function completeRest() {
+  if (restTimer.running && restSetId !== null) {
+    // Use the scheduled start, even if the countdown callback arrives late.
+    session.recordRest(restSetId, restTimer.secondsAt(timer.startedAt));
+  }
+  restTimer.reset();
+  restSetId = null;
+}
+
 function startFreshSet() {
   ensureSession();
   if (session.state !== 'active') return;
   $('set-feedback').textContent = '';
   timer.start(startDelay);
-  if (timer.state === 'running') restTimer.reset();
+  if (timer.state === 'running') completeRest();
   voiceFailed = false;
   // This also activates speech on mobile browsers when started by a click.
   lastCountdownSpoken = startDelay > 0 ? startDelay : null;
@@ -264,6 +276,7 @@ function startFreshSet() {
 function finishSession() {
   if (!session.finish()) return;
   restTimer.reset();
+  restSetId = null;
   clearInterval(ticker);
   cancelSpeech();
   render();
@@ -273,7 +286,7 @@ function finishSession() {
 
 function tick() {
   const justStarted = timer.advanceCountdown();
-  if (justStarted) restTimer.reset();
+  if (justStarted) completeRest();
   if (timer.state === 'countdown') {
     const remaining = timer.snapshot().countdownSeconds;
     if (remaining !== lastCountdownSpoken) {
@@ -324,7 +337,7 @@ $('stop-button').addEventListener('click', () => {
   if (!wasCountingDown) {
     restTimer.start();
     const seconds = timer.snapshot().seconds;
-    session.record(seconds);
+    restSetId = session.record(seconds) ? session.pending.id : null;
     $('set-feedback').textContent = seconds > 0 ? 'Save this set to add it to your session.' : 'Time at least one full second to save a set.';
   }
   if (restTimer.running) startTicker();
@@ -378,6 +391,7 @@ $('new-session').addEventListener('click', () => {
   cancelSpeech();
   timer = new Timer({ interval: timer.interval });
   restTimer.reset();
+  restSetId = null;
   session = new Session();
   sessionRenderKey = '';
   $('session-name').value = '';

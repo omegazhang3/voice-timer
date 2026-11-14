@@ -29,7 +29,7 @@ export class Session {
 
   record(seconds) {
     if (this.state !== 'active' || this.pending || !validSetDuration(seconds)) return false;
-    this.pending = { id: this.nextId++, seconds, measuredSeconds: seconds };
+    this.pending = { id: this.nextId++, seconds, measuredSeconds: seconds, restSeconds: null };
     this.revision++;
     return true;
   }
@@ -48,6 +48,15 @@ export class Session {
     if (this.state !== 'active' || !this.pending) return false;
     this.sets.push(this.pending);
     this.pending = null;
+    this.revision++;
+    return true;
+  }
+
+  recordRest(id, seconds) {
+    if (this.state !== 'active' || !Number.isSafeInteger(seconds) || seconds < 0) return false;
+    const set = this.sets.find(set => set.id === id);
+    if (!set || set.restSeconds !== null) return false;
+    set.restSeconds = seconds;
     this.revision++;
     return true;
   }

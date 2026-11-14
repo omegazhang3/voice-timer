@@ -16,7 +16,7 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Track rest between sets:** A separate Rest time display counts up after Stop and continues through saving, editing, and the next preparation countdown. Rest never affects the main timer, voice intervals, or training totals.
 - **Organize training into sessions and sets:** Name a session after your activity and manually save each stopped interval as a set.
 - **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
-- **Review your session:** See the number of saved sets, each set’s duration, and the total training time.
+- **Review your session:** See the number of saved sets, each set’s duration and following rest interval, and the total training time.
 - **Open and use:** Works in a phone or desktop browser without installation or registration. Session records stay in page memory and are cleared on reload; timer preferences are remembered separately.
 
 ## Timing and voice options
@@ -47,7 +47,9 @@ After stopping a set, **Rest time** automatically counts up in a separate displa
 
 Rest ends when the next set actually starts, so the next preparation countdown is included in rest time. Cancelling that countdown keeps the same rest period running. There is no rest timer before the first set, and pausing within a set does not start one. Each Stop after timing starts begins a new rest period. Finishing the session clears the rest display; a new session starts fresh.
 
-Rest is displayed visually without voice announcements. It does not change workout announcement intervals and is excluded from set durations and session totals. Rest periods are not saved in the session summary.
+Rest is displayed visually without voice announcements. It does not change workout announcement intervals and is excluded from set durations and session totals.
+
+The **Rest after** column in Saved sets and the session summary records each completed interval on the preceding set: if Set 2 starts 10 seconds after Set 1 stops, Set 1 shows **00:10**. The interval is finalized automatically when the next set actually starts, including preparation countdowns and time spent saving or editing. Editing the set duration does not change the rest start time. Until the next set starts, the column shows **—**; finishing the session leaves the final set without a following interval. Intervals under one second show **00:00**. Deleting or discarding a set also removes its associated rest record; intervals are not reassigned or merged into another set.
 
 ## Local use
 
