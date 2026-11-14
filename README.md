@@ -16,7 +16,7 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Track rest between sets:** A separate Rest time display counts up after Stop and continues through saving, editing, and the next preparation countdown. Rest never affects the main timer, voice intervals, or training totals.
 - **Organize training into sessions and sets:** Name a session after your activity and manually save each stopped interval as a set.
 - **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
-- **Review your session:** See the number of saved sets, each set’s duration and following rest interval, and the total training time.
+- **Review your session:** Saved sets and the final summary show each set’s duration and **Rest after** interval. Rest is automatically recorded on the preceding set when the next set starts, and stays separate from total training time.
 - **Open and use:** Works in a phone or desktop browser without installation or registration. Session records stay in page memory and are cleared on reload; timer preferences are remembered separately.
 
 ## Timing and voice options
@@ -51,6 +51,15 @@ Rest is displayed visually without voice announcements. It does not change worko
 
 The **Rest after** column in Saved sets and the session summary records each completed interval on the preceding set: if Set 2 starts 10 seconds after Set 1 stops, Set 1 shows **00:10**. The interval is finalized automatically when the next set actually starts, including preparation countdowns and time spent saving or editing. Editing the set duration does not change the rest start time. Until the next set starts, the column shows **—**; finishing the session leaves the final set without a following interval. Intervals under one second show **00:00**. Deleting or discarding a set also removes its associated rest record; intervals are not reassigned or merged into another set.
 
+For example, save a 20-second Set 1, start Set 2 after a 10-second rest, then save a 15-second Set 2 and finish the session:
+
+| Set | Duration | Rest after |
+| --- | --- | --- |
+| Set 1 | 00:20 | 00:10 |
+| Set 2 | 00:15 | — |
+
+The summary shows **2 sets** and **00:35 total time**. The 10-second rest is recorded on Set 1 and excluded from the total. Set durations are saved manually; completed rest intervals are attached automatically without pressing Save set again. These records remain available only for the current page session.
+
 ## Local use
 
 Serve this directory with a static HTTP server, for example:
@@ -69,7 +78,7 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, independent rest timing, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, independent rest timing, rest attribution to the preceding set, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 
