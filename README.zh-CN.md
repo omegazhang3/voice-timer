@@ -6,6 +6,8 @@
 
 **在线使用：** https://omegazhang3.github.io/voice-timer/
 
+**后续计划：** [TimeCue TODO](TODO.md)，首要待办为语音控制 Start / Stop。
+
 ## 功能亮点
 
 - **定时语音报时**：按预设或自定义间隔播报已用时。简洁模式只报秒数，例如“5 seconds”“10 seconds”。

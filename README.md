@@ -6,6 +6,8 @@ A talking workout timer that helps you focus on your movement without repeatedly
 
 **Live app:** https://omegazhang3.github.io/voice-timer/
 
+**Planned features:** [TimeCue TODO (Chinese)](TODO.md), starting with voice-controlled Start / Stop.
+
 ## Feature highlights
 
 - **Hear your progress:** Announce elapsed time at a preset or custom interval. Short announcements say just “5 seconds”, “10 seconds”, and so on.
