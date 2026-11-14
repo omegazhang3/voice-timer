@@ -13,6 +13,7 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Hear your progress:** Announce elapsed time at a preset or custom interval. Short announcements say just “5 seconds”, “10 seconds”, and so on.
 - **Get ready before timing starts:** Choose a spoken 3, 5, or 10-second countdown, or start immediately. The default is 3 seconds.
 - **Control your workout:** Start, pause, resume, and stop. Preparation countdowns and pauses are excluded from elapsed time.
+- **Track rest between sets:** A separate Rest time display counts up after Stop and continues through saving, editing, and the next preparation countdown. Rest never affects the main timer, voice intervals, or training totals.
 - **Organize training into sessions and sets:** Name a session after your activity and manually save each stopped interval as a set.
 - **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
 - **Review your session:** See the number of saved sets, each set’s duration, and the total training time.
@@ -40,6 +41,14 @@ Stop timing before selecting **Finish session**. The summary shows every saved s
 
 Session data lives only in page memory: there is no history database, local storage, or server upload for session records. Refreshing or closing the page clears the session. The browser is asked to warn before leaving a session, but some mobile browsers do not display that warning. Starting a new session clears the previous summary after confirmation when it contains saved sets. Timer preferences continue to be saved separately.
 
+## Rest between sets
+
+After stopping a set, **Rest time** automatically counts up in a separate display while the final workout time remains visible. Saving, editing, deleting, or discarding a set does not reset the rest clock. It also keeps running while a save/discard dialog is open.
+
+Rest ends when the next set actually starts, so the next preparation countdown is included in rest time. Cancelling that countdown keeps the same rest period running. There is no rest timer before the first set, and pausing within a set does not start one. Each Stop after timing starts begins a new rest period. Finishing the session clears the rest display; a new session starts fresh.
+
+Rest is displayed visually without voice announcements. It does not change workout announcement intervals and is excluded from set durations and session totals. Rest periods are not saved in the session summary.
+
 ## Local use
 
 Serve this directory with a static HTTP server, for example:
@@ -58,7 +67,7 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, English time formatting, and loading the correct speech formatter when an older module is cached.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, independent rest timing, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 

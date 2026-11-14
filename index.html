@@ -61,6 +61,10 @@
               <div class="next-row"><span id="next-label">First announcement in</span><span id="next-time">00:30</span></div>
               <div class="progress-track" aria-hidden="true"><div id="progress-fill"></div></div>
             </div>
+            <div class="rest-timer" id="rest-timer" hidden>
+              <div class="rest-row"><span>Rest time</span><span id="rest-clock" role="timer" aria-label="Rest time since your last set" aria-live="off">00:00</span></div>
+              <p>Until your next set begins. Excluded from training time.</p>
+            </div>
             <div class="controls">
               <button class="button button-primary" id="primary-button" type="button"><span class="control-icon" id="primary-icon" aria-hidden="true">▶</span><span id="primary-label">Start timer</span></button>
               <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span><span id="stop-label">Stop</span></button>

@@ -1,4 +1,4 @@
-import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, formatTime, spokenTime, validInterval } from './timer.js';
+import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, RestTimer, formatTime, spokenTime, validInterval } from './timer.js';
 import { Session } from './session.js';
 
 const $ = id => document.getElementById(id);
@@ -19,6 +19,7 @@ try {
 } catch { storageAvailable = false; }
 
 let timer = new Timer({ interval: savedInterval });
+const restTimer = new RestTimer();
 let session = new Session();
 let sessionRenderKey = '';
 let pendingAction = null;
@@ -153,6 +154,8 @@ function render() {
   $('next-label').textContent = sessionFinished ? 'Saved sets' : nextLabels[state];
   $('next-time').textContent = sessionFinished ? String(session.sets.length) : state === 'stopped' ? '—' : formatTime(countingDown ? countdownSeconds : nextIn);
   $('progress-fill').style.transform = `scaleX(${state === 'stopped' ? 1 : progress})`;
+  $('rest-timer').hidden = !restTimer.running;
+  $('rest-clock').textContent = formatTime(restTimer.seconds);
   renderSession();
 }
 
@@ -249,6 +252,7 @@ function startFreshSet() {
   if (session.state !== 'active') return;
   $('set-feedback').textContent = '';
   timer.start(startDelay);
+  if (timer.state === 'running') restTimer.reset();
   voiceFailed = false;
   // This also activates speech on mobile browsers when started by a click.
   lastCountdownSpoken = startDelay > 0 ? startDelay : null;
@@ -259,6 +263,8 @@ function startFreshSet() {
 
 function finishSession() {
   if (!session.finish()) return;
+  restTimer.reset();
+  clearInterval(ticker);
   cancelSpeech();
   render();
   $('records-heading').tabIndex = -1;
@@ -267,6 +273,7 @@ function finishSession() {
 
 function tick() {
   const justStarted = timer.advanceCountdown();
+  if (justStarted) restTimer.reset();
   if (timer.state === 'countdown') {
     const remaining = timer.snapshot().countdownSeconds;
     if (remaining !== lastCountdownSpoken) {
@@ -315,10 +322,12 @@ $('stop-button').addEventListener('click', () => {
   clearInterval(ticker);
   cancelSpeech();
   if (!wasCountingDown) {
+    restTimer.start();
     const seconds = timer.snapshot().seconds;
     session.record(seconds);
     $('set-feedback').textContent = seconds > 0 ? 'Save this set to add it to your session.' : 'Time at least one full second to save a set.';
   }
+  if (restTimer.running) startTicker();
   render();
 });
 
@@ -368,6 +377,7 @@ $('new-session').addEventListener('click', () => {
   clearInterval(ticker);
   cancelSpeech();
   timer = new Timer({ interval: timer.interval });
+  restTimer.reset();
   session = new Session();
   sessionRenderKey = '';
   $('session-name').value = '';
@@ -405,7 +415,7 @@ document.querySelectorAll('[data-interval]').forEach(button => button.addEventLi
 }));
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && ['countdown', 'running'].includes(timer.state)) tick();
+  if (!document.hidden && (restTimer.running || ['countdown', 'running'].includes(timer.state))) tick();
 });
 window.addEventListener('pagehide', () => {
   // Do not keep speaking after the page has been left.
@@ -414,7 +424,13 @@ window.addEventListener('pagehide', () => {
   clearInterval(ticker);
   cancelSpeech();
 });
-window.addEventListener('pageshow', () => render());
+window.addEventListener('pageshow', () => {
+  // A page restored from the back-forward cache still has its rest start time.
+  if (restTimer.running || ['countdown', 'running'].includes(timer.state)) {
+    startTicker();
+    tick();
+  } else render();
+});
 
 if (supportsSpeech) {
   findVoice();

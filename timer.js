@@ -28,6 +28,30 @@ export function spokenTime(seconds, short = false) {
   return `${parts.join(' ') || '0 seconds'} elapsed.`;
 }
 
+// Rest has its own clock and never changes the workout timer or its announcements.
+export class RestTimer {
+  constructor({ now = () => performance.now() } = {}) {
+    this.now = now;
+    this.startedAt = null;
+  }
+
+  get running() {
+    return this.startedAt !== null;
+  }
+
+  get seconds() {
+    return this.running ? Math.floor(Math.max(0, this.now() - this.startedAt) / 1000) : 0;
+  }
+
+  start() {
+    if (!this.running) this.startedAt = this.now();
+  }
+
+  reset() {
+    this.startedAt = null;
+  }
+}
+
 export class Timer {
   constructor({ now = () => performance.now(), interval = DEFAULT_INTERVAL } = {}) {
     this.now = now;
