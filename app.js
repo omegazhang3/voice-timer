@@ -1,5 +1,5 @@
 import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, RestTimer, formatTime, spokenTime, validInterval } from './timer.js';
-import { Session } from './session.js';
+import { Session, validReps } from './session.js';
 
 const $ = id => document.getElementById(id);
 const storageKey = 'voice-timer.interval';
@@ -21,6 +21,7 @@ try {
 let timer = new Timer({ interval: savedInterval });
 const restTimer = new RestTimer();
 let restSetId = null;
+let setType = 'time';
 let session = new Session();
 let sessionRenderKey = '';
 let pendingAction = null;
@@ -116,6 +117,7 @@ function setIntervalValue(value) {
 function render() {
   const { state, seconds, nextIn, progress, countdownSeconds } = timer.snapshot();
   const sessionFinished = session.state === 'finished';
+  const repsOnlySummary = sessionFinished && session.sets.length > 0 && session.sets.every(set => set.type === 'reps');
   const displayedSeconds = sessionFinished ? session.totalSeconds : seconds;
   const countingDown = state === 'countdown';
   const active = countingDown || state === 'running' || state === 'paused';
@@ -131,25 +133,36 @@ function render() {
     stopped: 'Nicely done. Your final time is shown here.',
   };
   if (session.state === 'finished') captions[state] = 'Session complete. Your summary is below.';
+  else if (setType === 'reps' && !countingDown) captions[state] = state === 'stopped'
+    ? 'Enter your reps below. Elapsed time is for reference only.'
+    : 'Use Start and Stop to track rest. Save reps after stopping.';
   const nextLabels = { idle: 'First announcement in', countdown: 'Timing starts in', running: 'Next announcement in', paused: 'After you resume', stopped: 'Set complete' };
-  $('clock').textContent = countingDown ? String(countdownSeconds) : formatTime(displayedSeconds);
+  $('clock').textContent = repsOnlySummary ? String(session.totalReps) : countingDown ? String(countdownSeconds) : formatTime(displayedSeconds);
+  $('clock').classList.toggle('reps-total', repsOnlySummary);
   $('clock').classList.toggle('counting-down', countingDown);
-  $('clock').setAttribute('aria-label', sessionFinished ? 'Session total time' : countingDown ? 'Seconds until timing starts' : 'Elapsed time');
+  $('clock').setAttribute('aria-label', repsOnlySummary ? 'Session total reps' : sessionFinished ? 'Session total time' : countingDown ? 'Seconds until timing starts' : 'Elapsed time');
   $('clock').classList.toggle('has-hours', displayedSeconds >= 3600);
-  $('clock-label').textContent = sessionFinished ? 'SESSION TOTAL' : countingDown ? 'STARTING IN' : state === 'stopped' ? 'FINAL TIME' : 'ELAPSED TIME';
+  $('clock-label').textContent = repsOnlySummary ? 'TOTAL REPS' : sessionFinished ? 'SESSION TOTAL' : countingDown ? 'STARTING IN' : state === 'stopped' ? 'FINAL TIME' : 'ELAPSED TIME';
   // Only update the live status when it changes, not on every tick.
   if ($('status-text').textContent !== statuses[state]) $('status-text').textContent = statuses[state];
   $('timer-status').dataset.state = state;
   $('timer-caption').textContent = captions[state];
   $('primary-label').textContent = primaryLabels[state];
   $('primary-icon').textContent = state === 'running' ? 'Ⅱ' : '▶';
-  $('primary-button').disabled = session.state === 'finished' || countingDown || (!active && !intervalIsValid);
+  $('primary-button').disabled = session.state === 'finished' || countingDown || (!active && setType === 'time' && !intervalIsValid);
   $('stop-button').disabled = !active;
   $('stop-label').textContent = countingDown ? 'Cancel' : 'Stop';
-  $('interval-settings').disabled = active;
+  $('interval-settings').disabled = active || setType === 'reps';
+  $('set-type').disabled = active || sessionFinished;
+  $('set-type').value = setType;
+  $('set-type-help').textContent = setType === 'reps'
+    ? 'Start / Stop as usual, then enter reps. No elapsed-time announcements.'
+    : 'Save the duration of each set.';
+  document.querySelector('.next-announcement').hidden = setType === 'reps' && !countingDown && !sessionFinished;
   $('start-settings').disabled = active;
   $('test-voice').disabled = !supportsSpeech || countingDown || state === 'running';
-  $('interval-help').textContent = active ? 'Stop the timer to change your interval.'
+  $('interval-help').textContent = setType === 'reps' ? 'Elapsed-time announcements are off in Reps mode.'
+    : active ? 'Stop the timer to change your interval.'
     : storageAvailable ? '5–3,600 seconds. Saved on this device.'
     : '5–3,600 seconds. Browser storage is unavailable; this setting lasts for this visit.';
   $('next-label').textContent = sessionFinished ? 'Saved sets' : nextLabels[state];
@@ -166,7 +179,7 @@ function warnBeforeUnload(event) {
 }
 
 function renderSession() {
-  const key = session.state + ':' + session.revision + ':' + timer.state;
+  const key = session.state + ':' + session.revision + ':' + timer.state + ':' + setType;
   if (key === sessionRenderKey) return;
   sessionRenderKey = key;
   const exists = session.state !== 'empty';
@@ -188,6 +201,12 @@ function renderSession() {
   $('records-heading').textContent = finished ? 'Session summary' : 'Saved sets';
   $('set-count').textContent = String(session.sets.length);
   $('session-total').textContent = formatTime(session.totalSeconds);
+  const hasReps = session.sets.some(set => set.type === 'reps');
+  $('session-reps-total').hidden = !hasReps;
+  $('session-reps').textContent = String(session.totalReps);
+  $('session-time-total').hidden = hasReps && session.sets.every(set => set.type === 'reps');
+  $('session-time-label').textContent = hasReps ? 'Timed sets' : 'Total time';
+  $('set-result-heading').textContent = hasReps ? 'Result' : 'Duration';
   $('sets-empty').hidden = session.sets.length > 0;
   $('sets-empty').textContent = finished ? 'This session finished with no saved sets.' : 'No sets saved yet. Stop the timer, then choose Save set.';
   $('sets-table-wrap').hidden = session.sets.length === 0;
@@ -196,7 +215,7 @@ function renderSession() {
     const number = document.createElement('td');
     number.textContent = 'Set ' + (index + 1);
     const duration = document.createElement('td');
-    duration.textContent = formatTime(set.seconds);
+    duration.textContent = describeSet(set);
     const rest = document.createElement('td');
     rest.textContent = set.restSeconds === null ? '—' : formatTime(set.restSeconds);
     const actions = document.createElement('td');
@@ -219,6 +238,8 @@ function renderSession() {
   });
   $('sets-list').replaceChildren(...rows);
   $('set-review').hidden = !session.pending || timer.state !== 'stopped';
+  $('duration-editor').hidden = session.pending?.type === 'reps';
+  $('reps-editor').hidden = session.pending?.type !== 'reps';
   if (session.pending) {
     $('set-duration').textContent = String(session.pending.seconds);
     $('pending-time').textContent = formatTime(session.pending.measuredSeconds);
@@ -235,9 +256,33 @@ function ensureSession() {
   if (session.state === 'empty') session.create($('session-name').value);
 }
 
+function describeSet(set) {
+  return set.type === 'reps' ? set.reps + (set.reps === 1 ? ' rep' : ' reps') : formatTime(set.seconds);
+}
+
+function clearRepsInput() {
+  $('set-reps').value = '';
+  $('set-reps').removeAttribute('aria-invalid');
+  $('set-reps-error').hidden = true;
+}
+
 function savePendingSet() {
+  if (session.pending?.type === 'reps') {
+    const reps = $('set-reps').valueAsNumber;
+    if (!validReps(reps)) {
+      if ($('pending-dialog').open) {
+        $('pending-dialog').close();
+        pendingAction = null;
+      }
+      $('set-reps-error').hidden = false;
+      $('set-reps').setAttribute('aria-invalid', 'true');
+      $('set-reps').focus();
+      return false;
+    }
+    session.updateReps(reps);
+  }
   if (!session.save()) return false;
-  $('set-feedback').textContent = 'Set ' + session.sets.length + ' saved · ' + formatTime(session.sets.at(-1).seconds);
+  $('set-feedback').textContent = 'Set ' + session.sets.length + ' saved · ' + describeSet(session.sets.at(-1));
   render();
   return true;
 }
@@ -245,7 +290,11 @@ function savePendingSet() {
 function resolvePending(action, purpose) {
   if (!session.pending) { action(); return; }
   pendingAction = action;
-  $('pending-dialog-description').textContent = 'Your ' + formatTime(session.pending.seconds)
+  const reps = $('set-reps').valueAsNumber;
+  const description = session.pending.type === 'reps'
+    ? validReps(reps) ? describeSet({ type: 'reps', reps }) : 'rep-based'
+    : describeSet(session.pending);
+  $('pending-dialog-description').textContent = 'Your ' + description
     + ' set has not been saved. Save or discard it before ' + purpose + '.';
   $('pending-dialog').showModal();
 }
@@ -263,6 +312,7 @@ function startFreshSet() {
   ensureSession();
   if (session.state !== 'active') return;
   $('set-feedback').textContent = '';
+  clearRepsInput();
   timer.start(startDelay);
   if (timer.state === 'running') completeRest();
   voiceFailed = false;
@@ -297,7 +347,7 @@ function tick() {
     return;
   }
   const announcement = timer.pollAnnouncement();
-  if (announcement !== null && !voiceFailed) speak(spokenTime(announcement, shortSpeech));
+  if (announcement !== null && !voiceFailed && setType === 'time') speak(spokenTime(announcement, shortSpeech));
   else if (justStarted && !voiceFailed) speak('Go!');
   render();
 }
@@ -321,8 +371,10 @@ $('primary-button').addEventListener('click', () => {
     speak('Timer resumed.');
     startTicker();
   } else {
-    setIntervalValue(Number($('custom-interval').value));
-    if (!intervalIsValid) { $('custom-interval').focus(); return; }
+    if (setType === 'time') {
+      setIntervalValue(Number($('custom-interval').value));
+      if (!intervalIsValid) { $('custom-interval').focus(); return; }
+    }
     resolvePending(startFreshSet, 'starting the next set');
   }
   render();
@@ -337,8 +389,9 @@ $('stop-button').addEventListener('click', () => {
   if (!wasCountingDown) {
     restTimer.start();
     const seconds = timer.snapshot().seconds;
-    restSetId = session.record(seconds) ? session.pending.id : null;
-    $('set-feedback').textContent = seconds > 0 ? 'Save this set to add it to your session.' : 'Time at least one full second to save a set.';
+    restSetId = session.record(seconds, setType) ? session.pending.id : null;
+    $('set-feedback').textContent = setType === 'reps' ? 'Enter your reps, then choose Save set.'
+      : seconds > 0 ? 'Save this set to add it to your session.' : 'Time at least one full second to save a set.';
   }
   if (restTimer.running) startTicker();
   render();
@@ -350,6 +403,18 @@ $('session-form').addEventListener('submit', event => {
   render();
 });
 $('save-set').addEventListener('click', savePendingSet);
+$('set-type').addEventListener('change', event => {
+  if (['countdown', 'running', 'paused'].includes(timer.state) || session.state === 'finished') return;
+  const type = event.target.value;
+  if (!['time', 'reps'].includes(type)) return;
+  if (session.pending && !session.setPendingType(type)) { render(); return; }
+  setType = type;
+  render();
+});
+$('set-reps').addEventListener('input', () => {
+  $('set-reps-error').hidden = true;
+  $('set-reps').removeAttribute('aria-invalid');
+});
 for (const [id, adjust] of [
   ['decrease-set-duration', seconds => Math.floor((seconds - 1) / 5) * 5],
   ['increase-set-duration', seconds => seconds + 1],
@@ -396,6 +461,7 @@ $('new-session').addEventListener('click', () => {
   sessionRenderKey = '';
   $('session-name').value = '';
   $('set-feedback').textContent = '';
+  clearRepsInput();
   render();
   $('session-name').focus();
 });

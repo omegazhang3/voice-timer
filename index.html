@@ -52,6 +52,11 @@
               <span class="eyebrow">STOPWATCH</span>
               <span class="status-pill" id="timer-status" role="status"><span class="status-dot"></span><span id="status-text">Ready</span></span>
             </div>
+            <div class="set-type-row">
+              <label for="set-type">Record set as</label>
+              <select id="set-type" aria-describedby="set-type-help"><option value="time">Time</option><option value="reps">Reps</option></select>
+            </div>
+            <p class="set-type-help" id="set-type-help">Save the duration of each set.</p>
             <div class="clock-area">
               <p class="clock-label" id="clock-label">ELAPSED TIME</p>
               <div class="clock" id="clock" role="timer" aria-label="Elapsed time" aria-live="off">00:00</div>
@@ -70,7 +75,7 @@
               <button class="button button-stop" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span><span id="stop-label">Stop</span></button>
             </div>
             <div class="set-review" id="set-review" hidden>
-              <div class="set-duration-editor">
+              <div class="set-duration-editor" id="duration-editor">
                 <label for="set-duration">Set duration</label>
                 <div class="set-duration-stepper" role="group" aria-label="Adjust set duration" aria-describedby="set-duration-help">
                   <button id="decrease-set-duration" type="button" aria-label="Reduce set duration to the previous multiple of 5 seconds">−</button>
@@ -78,6 +83,12 @@
                   <button id="increase-set-duration" type="button" aria-label="Increase set duration by 1 second">+1</button>
                 </div>
                 <p id="set-duration-help">Measured: <span id="pending-time">00:00</span>. − rounds down to the previous multiple of 5 sec. +1 adds one second, up to the measured time.</p>
+              </div>
+              <div class="set-duration-editor" id="reps-editor" hidden>
+                <label for="set-reps">Reps completed</label>
+                <input id="set-reps" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 10" aria-describedby="set-reps-help set-reps-error">
+                <p id="set-reps-help">Enter a whole-number count, then save this set.</p>
+                <p id="set-reps-error" role="alert" hidden>Enter a positive whole number of reps.</p>
               </div>
               <button class="button button-save" id="save-set" type="button">Save set</button>
             </div>
@@ -130,14 +141,15 @@
             <div><p class="eyebrow" id="records-eyebrow">YOUR PROGRESS</p><h2 id="records-heading">Saved sets</h2></div>
             <div class="session-totals">
               <div><strong id="set-count">0</strong><span>Sets</span></div>
-              <div><strong id="session-total">00:00</strong><span>Total time</span></div>
+              <div id="session-time-total"><strong id="session-total">00:00</strong><span id="session-time-label">Total time</span></div>
+              <div id="session-reps-total" hidden><strong id="session-reps">0</strong><span>Total reps</span></div>
             </div>
           </div>
           <p id="sets-empty">No sets saved yet. Stop the timer, then choose Save set.</p>
           <div class="sets-table-wrap" id="sets-table-wrap" hidden>
-            <table class="sets-table"><thead><tr><th scope="col">Set</th><th scope="col">Duration</th><th scope="col">Rest after</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="sets-list"></tbody></table>
+            <table class="sets-table"><thead><tr><th scope="col">Set</th><th scope="col" id="set-result-heading">Duration</th><th scope="col">Rest after</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="sets-list"></tbody></table>
           </div>
-          <p class="session-note">Rest after is recorded on the preceding set when the next set starts, including its preparation countdown. — means no completed interval yet. Total time includes saved sets only, excluding countdowns, pauses and rest. Refreshing or closing this page clears your session.</p>
+          <p class="session-note">Rest after is recorded on the preceding set when the next set starts, including its preparation countdown. — means no completed interval yet. Time and reps are totaled separately. Total time includes saved timed sets only, excluding countdowns, pauses and rest. Refreshing or closing this page clears your session.</p>
         </section>
 
         <dialog id="pending-dialog" aria-labelledby="pending-dialog-title" aria-describedby="pending-dialog-description">

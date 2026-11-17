@@ -15,6 +15,7 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Control your workout:** Start, pause, resume, and stop. Preparation countdowns and pauses are excluded from elapsed time.
 - **Track rest between sets:** A separate Rest time display counts up after Stop and continues through saving, editing, and the next preparation countdown. Rest never affects the main timer, voice intervals, or training totals.
 - **Organize training into sessions and sets:** Name a session after your activity and manually save each stopped interval as a set.
+- **Record reps for strength exercises:** Choose **Reps** for bench press, squats, or similar exercises, then enter the completed count before Save set. Timed durations and reps have separate totals.
 - **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
 - **Review your session:** Saved sets and the final summary show each set’s duration and **Rest after** interval. Rest is automatically recorded on the preceding set when the next set starts, and stays separate from total training time.
 - **Open and use:** Works in a phone or desktop browser without installation or registration. Session records stay in page memory and are cleared on reload; timer preferences are remembered separately.
@@ -33,13 +34,25 @@ A talking workout timer that helps you focus on your movement without repeatedly
 
 ## Sessions and sets
 
-Create a session with any name (including Chinese), or press Start to create one automatically using the entered name or the current date and time. Stop each timing interval, optionally adjust **Set duration** with the **− / +1** buttons, then press **Save set** to add it to the session. For example, a measured 20-second set can be reduced to 15 seconds and increased back up to 20, but never beyond 20. The original stopwatch time remains visible; the saved value is used in the session total. A stopped time is not included in totals until saved, and the same stopped time cannot be saved twice.
+Create a session with any name (including Chinese), or press Start to create one automatically using the entered name or the current date and time. In **Time** mode, stop each timing interval, optionally adjust **Set duration** with the **− / +1** buttons, then press **Save set** to add it to the session. For example, a measured 20-second set can be reduced to 15 seconds and increased back up to 20, but never beyond 20. The original stopwatch time remains visible; the saved value is used in the session total. A stopped set is not included in totals until saved, and the same set cannot be saved twice.
 
 Use **Next set** to start again with the same announcement and countdown settings. If a stopped set is unsaved, starting another set or finishing the session asks whether to save it, discard it, or keep editing. **Delete** removes an incorrectly saved set while the session is active.
 
-Stop timing before selecting **Finish session**. The summary shows every saved set, the set count, and their combined duration. Set duration defaults to the complete seconds shown on the stopwatch. The decrease button jumps to the previous multiple of five seconds (47 → 45 → 40, or 41 → 40). The increase button adds one second at a time, up to the original measured duration. Buttons are disabled if the next step would exceed the measured time or fall below one second. Sets of five seconds or less keep their original duration. Measurements under one second do not create a pending set. Startup countdowns, pauses, rest between sets, and discarded sets do not count toward the total.
+Stop timing before selecting **Finish session**. The summary shows every saved set, the set count, and their combined duration. Set duration defaults to the complete seconds shown on the stopwatch. The decrease button jumps to the previous multiple of five seconds (47 → 45 → 40, or 41 → 40). The increase button adds one second at a time, up to the original measured duration. Buttons are disabled if the next step would exceed the measured time or fall below one second. Sets of five seconds or less keep their original duration. In Time mode, measurements under one second do not create a pending set. Startup countdowns, pauses, rest between sets, and discarded sets do not count toward the total.
 
 Session data lives only in page memory: there is no history database, local storage, or server upload for session records. Refreshing or closing the page clears the session. The browser is asked to warn before leaving a session, but some mobile browsers do not display that warning. Starting a new session clears the previous summary after confirmation when it contains saved sets. Timer preferences continue to be saved separately.
+
+## Reps for strength exercises
+
+For exercises measured by count, such as bench press:
+
+1. Set **Record set as** to **Reps**. You can also switch a stopped, unsaved set from Time to Reps.
+2. Use Start and Stop as usual to mark the set boundaries and preserve accurate rest intervals. The recording type is locked during countdowns, running, and pauses.
+3. After Stop, enter **Reps completed**, such as `8`, then click **Save set**. Enter a positive whole number; blank, zero, negative, and fractional counts cannot be saved.
+
+Reps mode keeps the preparation countdown and start/resume voice confirmations, but disables elapsed-time announcements. The stopwatch remains visible for reference; its duration is not included in the saved timed-set total. Each new set starts with an empty reps field, and the count is independent of measured seconds. Time mode retains its existing duration adjustment rules.
+
+Saved sets show **8 reps** in the **Result** column, alongside **Rest after**. A session may contain both timed and rep-based sets: an 8-rep set, a 20-second set, and a 10-rep set produce **3 sets**, **00:20 timed sets**, and **18 total reps**. A reps-only session displays total reps in the large final summary. Save/discard prompts and deletion work for both types. Recording type lasts for the current page visit; session records, including reps, are cleared on reload.
 
 ## Rest between sets
 
@@ -78,7 +91,7 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, independent rest timing, rest attribution to the preceding set, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, reps and mixed-session totals, switching recording types, independent rest timing, rest attribution to the preceding set, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 
