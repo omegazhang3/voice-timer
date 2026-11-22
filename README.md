@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A talking workout timer that helps you focus on your movement without repeatedly checking the screen. Useful for jump rope, dead hangs, planks, stretching, and other timed activities. The current version has an English interface and English voice announcements.
+A talking workout timer with timed sets, repetition counts, rest tracking, and a training calendar. Use it for jump rope, dead hangs, planks, bench press, and other exercises. Save completed sessions locally and back up your history as JSON. The current version has an English interface and English voice announcements.
 
 **Live app:** https://omegazhang3.github.io/voice-timer/
 
@@ -20,6 +20,15 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Review your session:** Saved sets and the final summary show each set’s duration and **Rest after** interval. Rest is automatically recorded on the preceding set when the next set starts, and stays separate from total training time.
 - **Training calendar and backups:** Save completed sessions to a date, browse daily results and set details, and export/import JSON backups. Saved history stays in this browser using IndexedDB.
 - **Open and use:** Works in a phone or desktop browser without installation or registration. Current sessions remain temporary until you choose Save to calendar; timer preferences are remembered separately.
+
+## Quick start
+
+1. Name your session and choose **Record set as → Time** or **Reps**.
+2. Use **Start / Stop** for each set. Adjust the duration or enter reps, then choose **Save set**. Rest time runs automatically between sets.
+3. When training is complete, choose **Finish session → Training date → Save to calendar**. Save set alone keeps the record only in the current session.
+4. Select a day in **Training calendar** to review saved sessions and set details. Use **Export JSON** for a backup, or **Import JSON** to restore or transfer history; existing session IDs are skipped.
+
+Calendar history remains after reloading in the same browser. New session clears the current summary without deleting calendar records.
 
 ## Timing and voice options
 
