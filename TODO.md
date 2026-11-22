@@ -100,6 +100,32 @@
 - [ ] 根据上述要求比较网页封装与原生 Android 等方案，优先验证报时和语音识别的实际可靠性。
 - [ ] 确定首版范围、APK 分发和升级方式，再安排开发。
 
+## 后续方向：Google Play 上架
+
+目前仅记录发布计划，尚未开始 Android 开发或提交上架。建议首版包含本地训练、日历和 JSON 备份，之后再迭代 Google 登录与云同步。以下要求于 **2026-11-22** 核对，实际发布前需再次检查官方政策。
+
+### 账号与发布包
+
+- [ ] 注册 Google Play Console，选择个人或组织开发者账号。当前注册费为一次性 **25 美元**，完成身份和联系方式验证；新个人账号还需验证 Android 设备。[官方账号说明](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en)
+- [ ] 确定唯一包名，例如 `io.github.omegazhang3.timecue`（仅为候选，尚未采用），生成签名的 **Android App Bundle（.aab）**，配置 Play App Signing，妥善保存上传密钥。[创建和设置应用](https://support.google.com/googleplay/android-developer/answer/9859152?hl=en)
+- [ ] 核对目标 API 要求：自 2026-08-31 起，普通手机应用的新应用和更新需 target **Android 16 / API 36 或更高**。最低支持的 Android 版本单独设置，不代表只能安装在 Android 16 上。[目标 API 官方要求](https://support.google.com/googleplay/android-developer/answer/11926878?hl=en)
+
+### 商店页面与应用声明
+
+- [ ] 准备 TimeCue 名称、简短介绍、完整说明、图标、宣传图、手机截图和支持邮箱；确定发布地区以及免费／付费方式。第一版可先提供英文商店页面。
+- [ ] 准备公开可访问的隐私政策，并根据应用及所用 SDK 的实际数据流填写 Data safety、内容分级、广告和目标受众等声明。
+- [ ] 完成 Health apps declaration，如实声明运动训练相关功能。[健康应用声明](https://support.google.com/googleplay/android-developer/answer/14738291?hl=en)
+- [ ] 后续加入麦克风语音控制、前台服务或云同步时，核对相关权限与声明要求并同步更新。
+- [ ] 若支持在应用内创建账号，按政策提供应用内及网页端的账号删除请求入口，并处理关联用户数据。[账号删除要求](https://support.google.com/googleplay/android-developer/answer/13327111?hl=en)
+
+### 测试、审核与更新
+
+- [ ] 先进行内部测试，验证计时、报时、日历持久化、JSON 备份恢复及版本升级兼容性。
+- [ ] 如果使用 **2023-11-13 之后创建的个人开发者账号**，安排至少 **12 名测试者连续加入封闭测试 14 天**，收集反馈并修复问题，再申请正式发布权限。人数和天数达标不代表自动获批。[个人账号测试要求](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en)
+- [ ] 完成 Play Console 发布检查，上传正式版本并提交审核；审核通过后发布到选定地区。
+- [ ] 后续更新保持同一包名并递增版本号，按 Play Console 要求提交更新审核。
+- [ ] 提前准备开发者账号和测试者，排期包含封闭测试、正式发布权限申请及审核时间，不只计算编码时间。
+
 ## 候选功能：待讨论，不纳入已确认范围
 
 - [ ] **训练预设**：按“跳绳”“悬挂”等活动保存报时间隔、准备倒计时和播报模式，减少重复设置。
