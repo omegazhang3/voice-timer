@@ -31,4 +31,13 @@ test('published page bypasses a stale unversioned speech module', async t => {
   session.record(20);
   session.save();
   assert.equal(session.totalSeconds, 20);
+  const calendarPath = [...app.matchAll(/from '([^']+)'/g)][2][1];
+  assert.match(calendarPath, /^[.][/]calendar[.][a-f0-9]{16}[.]js$/);
+  const calendarURL = new URL(calendarPath, entryURL);
+  const calendarSource = await readFile(calendarURL, 'utf8');
+  for (const [, dependency] of calendarSource.matchAll(/from '([^']+)'/g)) {
+    assert.match(dependency, /^[.][/](history|timer)[.][a-f0-9]{16}[.]js$/);
+    await readFile(new URL(dependency, calendarURL), 'utf8');
+  }
+  assert.equal(typeof (await import(calendarURL.href)).createCalendar, 'function');
 });

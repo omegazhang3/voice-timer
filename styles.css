@@ -203,3 +203,46 @@ dialog > p { font-size: 14px; color: #687461; line-height: 1.7; }
 }
 @media (max-width: 360px) { .page { padding: 0 16px; } .timer-card, .settings-card { padding: 20px; } h1 { font-size: 34px; } .button-stop { width: 83px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+.calendar-card { margin-top: 22px; padding: 25px 28px; background: #fdfdfa; border: 1px solid var(--line); border-radius: 22px; }
+.calendar-card > .eyebrow { color: #7c887a; margin: 0 0 10px; }
+.calendar-card > .session-note { margin-top: 10px; }
+.calendar-save-form { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+.calendar-save-form label { display: block; font-size: 12px; margin-bottom: 8px; }
+.calendar-save-form input { min-width: 0; max-width: 100%; min-height: 43px; padding: 8px 10px; border: 1px solid #dde1d5; border-radius: 9px; color: var(--ink); background: #fff; font: inherit; }
+.calendar-save-form p { flex-basis: 100%; margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6; }
+.calendar-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+.calendar-import-label { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; min-width: 0; }
+.calendar-import-label input { width: 220px; max-width: 100%; min-height: 43px; padding: 8px 0; font-size: 12px; }
+.calendar-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.calendar-navigation { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.calendar-navigation h3 { font-size: 18px; text-align: center; font-weight: 600; }
+.calendar-navigation button { flex-shrink: 0; width: 44px; height: 44px; border-radius: 9px; border: 1px solid var(--line); background: #f2f3ec; color: var(--ink); font-size: 25px; }
+.calendar-navigation button:disabled { opacity: .4; }
+#calendar-today { min-height: 36px; font-size: 11px; }
+.calendar-weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.calendar-weekdays { text-align: center; margin: 20px 0 8px; font-size: 10px; color: var(--muted); }
+.calendar-day { min-width: 0; min-height: 60px; padding: 5px 1px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 9px; border: 1px solid #e6e8df; background: #f8f8f3; color: var(--ink); font-size: 14px; font-variant-numeric: tabular-nums; }
+.calendar-day small { font-size: 8px; min-height: 10px; line-height: 1.2; overflow-wrap: anywhere; }
+.calendar-day[aria-current=date] { border-color: #c67c56; }
+.calendar-day[aria-pressed=true] { background: #eaf0dd; border: 2px solid #789369; font-weight: 650; }
+.calendar-day:hover { background: #eef2e5; }
+.calendar-day-details { min-width: 0; }
+.calendar-day-details h3 { margin-bottom: 10px; font-size: 18px; }
+#calendar-day-summary { margin-top: 0; }
+.calendar-record { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-top: 12px; overflow-wrap: anywhere; }
+.calendar-record summary { cursor: pointer; line-height: 1.5; }
+.calendar-record summary strong { font-size: 14px; }
+.calendar-record summary span { display: block; font-size: 11px; color: var(--muted); margin-top: 5px; }
+.calendar-record > .delete-set { margin-top: 12px; }
+.calendar-record .sets-table-wrap { margin-top: 12px; }
+.calendar-record .sets-table td:last-child { text-align: left; }
+.calendar-measured { display: block; font-size: 10px; color: var(--muted); margin-top: 5px; }
+.calendar-status-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+#calendar-message { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6; flex: 1; min-width: 180px; }
+#calendar-message.error { color: #aa3d2c; }
+.calendar-card input:focus-visible, .calendar-save-form input:focus-visible, .calendar-record summary:focus-visible { outline: 3px solid #d65c31; outline-offset: 3px; }
+@media (max-width: 760px) {
+  .calendar-card { padding: 22px; }
+  .calendar-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .calendar-day { min-height: 54px; }
+}

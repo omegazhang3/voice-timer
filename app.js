@@ -1,5 +1,6 @@
 import { DEFAULT_INTERVAL, DEFAULT_START_DELAY, START_DELAYS, Timer, RestTimer, formatTime, spokenTime, validInterval } from './timer.js';
 import { Session, validReps } from './session.js';
+import { createCalendar } from './calendar.js';
 
 const $ = id => document.getElementById(id);
 const storageKey = 'voice-timer.interval';
@@ -35,6 +36,7 @@ let ticker;
 let intervalIsValid = true;
 let voiceFailed = false;
 const defaultVoiceMessage = 'Uses your device’s English voice. Check your volume before starting.';
+const calendar = createCalendar({ onChange: () => render() });
 
 function voiceMessage(text, error = false) {
   $('voice-message').textContent = text;
@@ -179,9 +181,11 @@ function warnBeforeUnload(event) {
 }
 
 function renderSession() {
-  const key = session.state + ':' + session.revision + ':' + timer.state + ':' + setType;
+  const savedToCalendar = calendar.isSaved(session);
+  const key = session.state + ':' + session.revision + ':' + timer.state + ':' + setType + ':' + savedToCalendar + ':' + calendar.busy;
   if (key === sessionRenderKey) return;
   sessionRenderKey = key;
+  calendar.setSession(session);
   const exists = session.state !== 'empty';
   const finished = session.state === 'finished';
   const busy = ['countdown', 'running', 'paused'].includes(timer.state);
@@ -191,12 +195,13 @@ function renderSession() {
   $('session-heading').textContent = exists ? session.name : 'Give your practice a name.';
   $('session-status').textContent = finished ? 'SESSION COMPLETE' : exists ? 'ACTIVE SESSION' : 'SESSION';
   $('session-description').textContent = exists
-    ? session.createdAt.toLocaleString() + ' · This page only'
+    ? session.createdAt.toLocaleString() + (savedToCalendar ? ' · Saved in calendar' : ' · Not saved to calendar')
     : 'Create a session, or press Start for an automatically named one.';
   $('finish-session').hidden = finished;
   $('finish-session').disabled = busy;
   $('finish-session').title = busy ? 'Stop the timer before finishing your session.' : '';
   $('new-session').hidden = !finished;
+  $('new-session').disabled = calendar.busy;
   $('records-eyebrow').textContent = finished ? 'WELL DONE' : 'YOUR PROGRESS';
   $('records-heading').textContent = finished ? 'Session summary' : 'Saved sets';
   $('set-count').textContent = String(session.sets.length);
@@ -246,9 +251,10 @@ function renderSession() {
     $('decrease-set-duration').disabled = session.pending.seconds <= 5;
     $('increase-set-duration').disabled = session.pending.seconds >= session.pending.measuredSeconds;
   }
-  if (exists !== unloadWarningActive) {
-    window[exists ? 'addEventListener' : 'removeEventListener']('beforeunload', warnBeforeUnload);
-    unloadWarningActive = exists;
+  const warn = exists && !savedToCalendar;
+  if (warn !== unloadWarningActive) {
+    window[warn ? 'addEventListener' : 'removeEventListener']('beforeunload', warnBeforeUnload);
+    unloadWarningActive = warn;
   }
 }
 
@@ -450,8 +456,8 @@ $('pending-cancel').addEventListener('click', () => {
 });
 $('pending-dialog').addEventListener('cancel', () => { pendingAction = null; });
 $('new-session').addEventListener('click', () => {
-  if (session.state !== 'finished') return;
-  if (session.sets.length && !window.confirm('Starting a new session clears this session and its saved sets. Continue?')) return;
+  if (session.state !== 'finished' || calendar.busy) return;
+  if (session.sets.length && !calendar.isSaved(session) && !window.confirm('This session has not been saved to the calendar. Starting a new session clears it. Continue?')) return;
   clearInterval(ticker);
   cancelSpeech();
   timer = new Timer({ interval: timer.interval });

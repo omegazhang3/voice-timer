@@ -18,7 +18,8 @@ A talking workout timer that helps you focus on your movement without repeatedly
 - **Record reps for strength exercises:** Choose **Reps** for bench press, squats, or similar exercises, then enter the completed count before Save set. Timed durations and reps have separate totals.
 - **Quickly correct a set’s duration:** Decrease to the previous multiple of five seconds (47 → 45 → 40), or add one second at a time. Adjustments never exceed the measured duration.
 - **Review your session:** Saved sets and the final summary show each set’s duration and **Rest after** interval. Rest is automatically recorded on the preceding set when the next set starts, and stays separate from total training time.
-- **Open and use:** Works in a phone or desktop browser without installation or registration. Session records stay in page memory and are cleared on reload; timer preferences are remembered separately.
+- **Training calendar and backups:** Save completed sessions to a date, browse daily results and set details, and export/import JSON backups. Saved history stays in this browser using IndexedDB.
+- **Open and use:** Works in a phone or desktop browser without installation or registration. Current sessions remain temporary until you choose Save to calendar; timer preferences are remembered separately.
 
 ## Timing and voice options
 
@@ -40,7 +41,7 @@ Use **Next set** to start again with the same announcement and countdown setting
 
 Stop timing before selecting **Finish session**. The summary shows every saved set, the set count, and their combined duration. Set duration defaults to the complete seconds shown on the stopwatch. The decrease button jumps to the previous multiple of five seconds (47 → 45 → 40, or 41 → 40). The increase button adds one second at a time, up to the original measured duration. Buttons are disabled if the next step would exceed the measured time or fall below one second. Sets of five seconds or less keep their original duration. In Time mode, measurements under one second do not create a pending set. Startup countdowns, pauses, rest between sets, and discarded sets do not count toward the total.
 
-Session data lives only in page memory: there is no history database, local storage, or server upload for session records. Refreshing or closing the page clears the session. The browser is asked to warn before leaving a session, but some mobile browsers do not display that warning. Starting a new session clears the previous summary after confirmation when it contains saved sets. Timer preferences continue to be saved separately.
+The current session stays in page memory until you finish it and choose **Save to calendar**. Save set and Finish session alone do not persist it. Refreshing or closing the page clears the current session, while calendar history remains in IndexedDB. The browser is asked to warn before leaving a session that has not been saved to the calendar; some mobile browsers do not show this warning. Starting a new session asks for confirmation if the previous session contains sets that were not saved to the calendar. It never clears calendar history. Timer preferences are saved separately.
 
 ## Reps for strength exercises
 
@@ -52,7 +53,7 @@ For exercises measured by count, such as bench press:
 
 Reps mode keeps the preparation countdown and start/resume voice confirmations, but disables elapsed-time announcements. The stopwatch remains visible for reference; its duration is not included in the saved timed-set total. Each new set starts with an empty reps field, and the count is independent of measured seconds. Time mode retains its existing duration adjustment rules.
 
-Saved sets show **8 reps** in the **Result** column, alongside **Rest after**. A session may contain both timed and rep-based sets: an 8-rep set, a 20-second set, and a 10-rep set produce **3 sets**, **00:20 timed sets**, and **18 total reps**. A reps-only session displays total reps in the large final summary. Save/discard prompts and deletion work for both types. Recording type lasts for the current page visit; session records, including reps, are cleared on reload.
+Saved sets show **8 reps** in the **Result** column, alongside **Rest after**. A session may contain both timed and rep-based sets: an 8-rep set, a 20-second set, and a 10-rep set produce **3 sets**, **00:20 timed sets**, and **18 total reps**. A reps-only session displays total reps in the large final summary. Save/discard prompts and deletion work for both types. Recording type lasts for the current page visit. Save completed sessions to the calendar to retain reps and other set details after reloading.
 
 ## Rest between sets
 
@@ -71,7 +72,19 @@ For example, save a 20-second Set 1, start Set 2 after a 10-second rest, then sa
 | Set 1 | 00:20 | 00:10 |
 | Set 2 | 00:15 | — |
 
-The summary shows **2 sets** and **00:35 total time**. The 10-second rest is recorded on Set 1 and excluded from the total. Set durations are saved manually; completed rest intervals are attached automatically without pressing Save set again. These records remain available only for the current page session.
+The summary shows **2 sets** and **00:35 total time**. The 10-second rest is recorded on Set 1 and excluded from the total. Set durations are saved manually; completed rest intervals are attached automatically without pressing Save set again. Choose Save to calendar after finishing the session to retain these records, including rest intervals.
+
+## Training calendar and JSON backups
+
+1. Complete your sets and choose **Finish session**.
+2. Review **Training date**, then choose **Save to calendar**. The default is the session's start date in the local time zone, including sessions finished after midnight. You can choose another date for backdated records. Empty sessions cannot be saved.
+3. Use the month arrows or **Today**, then select a day. Dates with saved sessions show a dot and session count. Expand a session to see each set's result, measured duration, and Rest after interval. Daily and session totals keep timed durations and reps separate.
+
+Saving the same completed session again uses its existing ID, so it does not create duplicates. While the completed session is still open, changing Training date and choosing **Update calendar date** moves that record. **Delete session** removes a calendar record after confirmation. Calendar actions do not change the current timer or its sets.
+
+**Export JSON** downloads all calendar sessions. **Import JSON** accepts TimeCue version 1 backups and previews how many sessions are new or already saved before confirmation. Import skips existing session IDs, including those with different contents; it never replaces them. Files are validated in full before writing, and all new records are imported in one transaction. Invalid files or failed writes leave existing history intact. Export includes the format version, stable session IDs, names, assigned dates, start/save timestamps, original time zones, and complete set details. Totals are calculated from those details. Assigned dates stay the same when importing in another time zone.
+
+History is stored locally in **IndexedDB**, without an account, backend, or upload to GitHub. It belongs to this browser/profile and website origin; a different browser, device, or site domain has separate storage. Clearing site data or private-browsing storage can remove it, and browsers may reclaim storage. Keep JSON backups for recovery or transfer. Calendar storage errors are shown with **Retry / refresh**; the stopwatch and current session still work when history storage is unavailable. There is no automatic saving of unfinished sessions or cloud sync.
 
 ## Local use
 
@@ -91,13 +104,13 @@ With Node.js 20 or newer:
 npm test
 ```
 
-Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, reps and mixed-session totals, switching recording types, independent rest timing, rest attribution to the preceding set, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
+Tests cover interval boundaries, pause/resume, delayed updates, stop/restart, startup countdowns and cancellation, input validation, calendar record validation and JSON round trips, reps and mixed-session totals, switching recording types, independent rest timing, rest attribution to the preceding set, session totals, English time formatting, and loading the correct speech formatter when an older module is cached.
 
 ## GitHub Pages
 
 The workflow in `.github/workflows/pages.yml` runs tests and builds the static site with `npm run build` on every push to `main`. Repository Settings → Pages → Source must be set to **GitHub Actions**.
 
-The build gives JavaScript, CSS, and icons content-based filenames in `dist/`. The app also imports the matching version of the timer module, preventing an updated interface from using a cached older speech formatter. The source files can still be served directly for local development.
+The build gives JavaScript, CSS, and icons content-based filenames in `dist/`. The app imports matching versions of its timer, session, calendar, and history modules, preventing updated interfaces from loading mismatched cached code. The source files can still be served directly for local development.
 
 ## Speech and timing
 
@@ -105,4 +118,4 @@ Speech uses the browser’s Web Speech API with an English voice from the device
 
 Elapsed time is calculated from a monotonic timestamp, not by counting ticks. Delayed updates announce the current elapsed time once instead of replaying missed intervals. Pausing or stopping cancels speech.
 
-This first version focuses on foreground timing. Background/lock-screen announcements, keeping the display awake, PWA installation, and voice commands are outside its scope. Reloading or closing the page ends the session; only interval, start-delay, and announcement-mode preferences are persisted.
+This version focuses on foreground timing. Background/lock-screen announcements, keeping the display awake, PWA installation, and voice commands are outside its scope. Reloading or closing the page ends the current session. Sessions explicitly saved to the calendar persist in IndexedDB; interval, start-delay, and announcement-mode preferences are stored separately.
