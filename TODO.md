@@ -126,6 +126,32 @@
 - [ ] 后续更新保持同一包名并递增版本号，按 Play Console 要求提交更新审核。
 - [ ] 提前准备开发者账号和测试者，排期包含封闭测试、正式发布权限申请及审核时间，不只计算编码时间。
 
+## 后续方向：Solana Seeker / dApp Store 上架
+
+Seeker 手机上的 Solana dApp Store 是独立于 Google Play 的发布渠道。官方支持原生 Android 应用及网页封装 APK。当前仅记录计划，未开始封装、注册、链上交易或提交审核。以下要求于 **2026-11-22** 核对，发布前需再次确认。
+
+### 发布准备
+
+- [ ] 生成正式签名的 **APK**，不是 Google Play 使用的 AAB；不能使用 Debug 包，需支持 `arm64-v8a`，包大小不超过 2 GB。[构建与签名说明](https://docs.solanamobile.com/dapp-store/build-and-sign-an-apk)
+- [ ] 在 [Publisher Portal](https://publish.solanamobile.com/) 注册发布者账号，填写开发者名称和公开网站；个人完成 KYC，企业完成 KYB，验证通过后才能添加应用。
+- [ ] 准备专用发布钱包，例如 Phantom 或 Solflare，并准备少量 SOL 用于链上发布交易。费用以实际提交时提示为准；后续版本仍需使用该发布钱包，应长期保留访问权限。
+- [ ] 准备 512×512 不透明背景图标、1200×600 横幅及 4–8 张截图，以及应用介绍、支持邮箱和公开网站。[商店素材要求](https://docs.solanamobile.com/dapp-store/listing-page-guidelines)
+- [ ] 准备各自独立、公开可通过 HTTPS 访问的服务条款和隐私政策页面；可使用现有 GitHub Pages 承载。阅读 [Publisher Policy](https://docs.solanamobile.com/dapp-store/publisher-policy) 与 [Developer Agreement](https://docs.solanamobile.com/dapp-store/agreement)。
+
+### 提交与更新
+
+- [ ] 填写与 APK application ID 完全一致的包名及应用资料，在发布钱包中确认创建 App NFT 的交易；包名需唯一，创建后不能更改。
+- [ ] 进入 Releases → New Version，上传 APK 或提供 APK URL，填写更新说明，确认发布流程中的钱包签名请求并提交审核。链上记录用于应用发布，TimeCue 的运动数据仍可保存在本地，无需上链。
+- [ ] 跟进审核邮件。官方当前提供的首次审核参考时间为 3–4 个工作日，不保证固定时限；通过后在相应分类上线。[完整提交流程](https://docs.solanamobile.com/dapp-store/submit-new-app)
+- [ ] 后续更新继续使用同一 dApp Store 应用签名密钥和发布钱包，提高 `versionCode` 后提交新版本。
+
+### 双商店发布与 TimeCue 验证
+
+- [ ] 若同时上架 Google Play，按 Solana 官方当前要求，为 dApp Store 使用与 Google Play **不同的签名密钥**，在 Android 工程中分别配置两个渠道的构建。[双商店发布说明](https://docs.solanamobile.com/dapp-store/publishing-from-google-play)
+- [ ] 规划跨商店安装和数据迁移：同包名、不同签名的安装包不能直接互相覆盖升级；迁移前可使用 JSON 备份。
+- [ ] 比较原生实现与官方网页封装工具；若封装现有网页，验证 WebView 的语音合成能力，必要时接入 Android 原生 TextToSpeech。
+- [ ] 测试计时、语音报时、休息计时、日历持久化、JSON 导入／导出和版本升级。开发不强制要求拥有 Seeker，但建议提交前在 Seeker 真机验证。[官方 FAQ](https://docs.solanamobile.com/get-started/faq)
+
 ## 候选功能：待讨论，不纳入已确认范围
 
 - [ ] **训练预设**：按“跳绳”“悬挂”等活动保存报时间隔、准备倒计时和播报模式，减少重复设置。
